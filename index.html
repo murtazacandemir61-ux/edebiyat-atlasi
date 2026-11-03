@@ -194,7 +194,7 @@
         }
         .dropdown-menu.show { display: block; animation: fadeIn 0.2s ease; }
 
-        /* Yazı Stili Menüsü */
+        /* Yazı Stili ve Hız Menüleri */
         #font-style-menu {
             width: 320px;
             display: none;
@@ -245,6 +245,19 @@
 
     <!-- Sağ Üst Kontroller -->
     <div class="top-controls">
+        <!-- Hareket Hızı Butonu (İstenen 4. kısım / ek tuş) -->
+        <div style="position: relative;" id="speed-container">
+            <button class="pill-btn" onclick="toggleSpeedMenu()" id="speed-btn">⚡ Hız: 1x</button>
+            <div id="speed-menu" class="dropdown-menu">
+                <button class="dropdown-option speed-opt" onclick="setSpeed(0.25, '0.25x', this)">0.25x (Yavaş)</button>
+                <button class="dropdown-option speed-opt" onclick="setSpeed(0.50, '0.50x', this)">0.50x</button>
+                <button class="dropdown-option speed-opt" onclick="setSpeed(0.75, '0.75x', this)">0.75x</button>
+                <button class="dropdown-option speed-opt active" onclick="setSpeed(1, '1x', this)">1x (Normal)</button>
+                <button class="dropdown-option speed-opt" onclick="setSpeed(1.5, '1.5x', this)">1.5x</button>
+                <button class="dropdown-option speed-opt" onclick="setSpeed(2, '2x', this)">2x (Hızlı)</button>
+            </div>
+        </div>
+
         <!-- Yazı Stili Butonu -->
         <div style="position: relative;" id="font-container">
             <button class="pill-btn" onclick="toggleFontMenu()" id="font-style-btn">🔤 Yazı Stili</button>
@@ -307,10 +320,11 @@
             de: { title: "İskendernâme Atlas", fontStyle: "🔤 Schriftstil", fontTitle: "Schriftart", weightTitle: "Stärke" },
             el: { title: "Άτλας Ισκεντερνάμε", fontStyle: "🔤 Στυλ Γραμματοσειράς", fontTitle: "Γραμματοσειρά", weightTitle: "Πάχος" },
             ja: { title: "イスカンダルナメ アトラス", fontStyle: "🔤 フォントスタイル", fontTitle: "フォント", weightTitle: "太さ" },
-            hi: { title: "इस्केंदरनामे एटलस", fontStyle: "🔤 फ़ॉन्ट शैली", fontTitle: "फ़ॉन्ट", weightTitle: "मोटाई" }
+            hi: { title: "इस्केंदरनामे एटलस", fontStyle: "🔤 मानचित्र शैली", fontStyle: "🔤 फ़ॉन्ट शैली", fontTitle: "फ़ॉन्ट", weightTitle: "मोटाई" }
         };
 
         let currentLang = 'tr';
+        let animationSpeedMultiplier = 1; // Başlangıç hızı 1x
 
         const classicalWorks = [
             {
@@ -326,41 +340,41 @@
                 lat: 40.6549, lng: 35.8356,
                 image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800",
                 journey: [
-                    { step: 1, title: "Rûm", lat: 39.9334, lng: 32.8597, quote: "Rûm diyarına varıp Anadolu'nun ulu kalelerini ve şehirlerini fetheyledi.", image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800" },
-                    { step: 2, title: "Fırat Nehri", lat: 37.1111, lng: 38.2783, quote: "Fırat suyunun kenarına gelip ordusuyla nehrin akışını temaşa kıldı.", image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800" },
-                    { step: 3, title: "Medâyin", lat: 33.0900, lng: 44.5800, quote: "Medâyin şehrine ulaşıp eski sultanların saraylarında ibretle gezindi.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800" },
-                    { step: 4, title: "İran", lat: 32.4279, lng: 53.6880, quote: "İran mülküne girip Dara'nın tahtını devirdi ve adaleti tesis eyledi.", image: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=800" },
-                    { step: 5, title: "Zâbilistân", lat: 31.6289, lng: 65.7372, quote: "Zâbilistân dağlarını aşıp pehlivanlar diyarından selamla geçti.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800" },
-                    { step: 6, title: "Sîstân", lat: 30.9583, lng: 61.5333, quote: "Sîstân vilayetinin çöllerinde konaklayıp gazileriyle istişare kıldı.", image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800" },
-                    { step: 7, title: "Hint Ülkesi / Hindistan", lat: 28.6139, lng: 77.2090, quote: "Hindistan'ın acayip ve garip illerine varıp filleri ve ejderhaları müşahede etti.", image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800" },
-                    { step: 8, title: "Sind", lat: 25.3960, lng: 68.3578, quote: "Sind nehrinin deryaya döküldüğü ulu sahilde donanma kurdu.", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" },
-                    { step: 9, title: "Râyic Adası", lat: 15.0000, lng: 75.0000, quote: "Râyic adasının ıssız kumsallarına çıkarak deniz ötesi sırları aradı.", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800" },
-                    { step: 10, title: "Râminî Adası", lat: 12.0000, lng: 80.0000, quote: "Râminî adasında acayip mahluklar ve efsanevi hazinelerle karşılaştı.", image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800" },
-                    { step: 11, title: "Vâkvâk Adası", lat: 0.0000, lng: 105.0000, quote: "Vâkvâk adasında insan meyvesi veren o meşhur acayip ağaçları gördü.", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800" },
-                    { step: 12, title: "Betân / Benan Adası", lat: 5.0000, lng: 95.0000, quote: "Betân adasının sarp kayalıkları arasında zorlu bir deniz seferi yaptı.", image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800" },
-                    { step: 13, title: "Etvârib / Etvâriyye Adası", lat: 8.0000, lng: 73.0000, quote: "Etvârib adasında deryanın dalgalarıyla boğuşup yönünü tayin eyledi.", image: "https://images.unsplash.com/photo-1568322445389-f64ac25256e6?w=800" },
-                    { step: 14, title: "Câbe / Cava Adası", lat: -7.5361, lng: 112.2384, quote: "Câbe adasının baharat kokulu ormanlarında çadır kurdu.", image: "https://images.unsplash.com/photo-1599839575945-a9e330adc30d?w=800" },
-                    { step: 15, title: "Lengâvûs / Lenkâvûs Adası", lat: 3.1390, lng: 101.6869, quote: "Lengâvûs adasında denizin derinliklerinden gelen gizli sesleri dinledi.", image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800" },
-                    { step: 16, title: "Tinnîn Adası", lat: 10.0000, lng: 85.0000, quote: "Tinnîn adasında ejderha misali büyük yaratıkların menziline uğradı.", image: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=800" },
-                    { step: 17, title: "Selâmıt / Selamit Adası", lat: 18.0000, lng: 57.0000, quote: "Selâmıt adasında selametle karaya ayak basıp şükür namazı kıldı.", image: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800" },
-                    { step: 18, title: "Elmas Vadisi", lat: 35.0000, lng: 70.0000, quote: "Elmas vadisinde kartalların yardımıyla devasa elmasları toplattı.", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800" },
-                    { step: 19, title: "Billur Köşk", lat: 38.0000, lng: 65.0000, quote: "Billur köşkün gümüş ve camdan yapılmış ihtişamına hayran kaldı.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800" },
-                    { step: 20, title: "Çin", lat: 39.9042, lng: 116.4074, quote: "Çin ülkesine varıp seddi aştı ve Doğu'nun kağanından haraç aldı.", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800" },
-                    { step: 21, title: "Kişmîr / Keşmir", lat: 33.7782, lng: 76.5762, quote: "Keşmir vadisinin yeşillikleri arasında dervişlerle sohbet eyledi.", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" },
-                    { step: 22, title: "Türk Ülkesi", lat: 45.0000, lng: 70.0000, quote: "Türk ellerine varıp Alp erlerin mertliğini ve yaylaklarını müşahede kıldı.", image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800" },
-                    { step: 23, title: "Tatargar", lat: 48.0000, lng: 80.0000, quote: "Tatargar vilayetinin hudut boylarında karargah kurdu.", image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800" },
-                    { step: 24, title: "Rus Ülkesi", lat: 55.7558, lng: 37.6173, quote: "Rus diyarının soğuk ve karlı ormanlarında kuzey seferini tamamladı.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800" },
-                    { step: 25, title: "Mâzenderân", lat: 36.5656, lng: 53.0586, quote: "Mâzenderân diyarında periler ve devler efsanesine konu olan dağları gezdi.", image: "https://images.unsplash.com/photo-1599839575945-a9e330adc30d?w=800" },
-                    { step: 26, title: "Horasan", lat: 36.2970, lng: 59.6062, quote: "Horasan ilinin irfan meclislerinde alimlerle ilmi münazara kıldı.", image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800" },
-                    { step: 27, title: "Mısır", lat: 30.0444, lng: 31.2357, quote: "Mısır'a varıp Nil nehrinin bereketli topraklarında adaletle hükmetti.", image: "https://images.unsplash.com/photo-1568322445389-f64ac25256e6?w=800" },
-                    { step: 28, title: "Nil Nehri", lat: 30.1000, lng: 31.3000, quote: "Nil nehrinin taşkın sularını ve suyunun gizemini ulemaya sordu.", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800" },
-                    { step: 29, title: "İskenderiyye", lat: 31.2001, lng: 29.9187, quote: "Kendi adıyla anılan İskenderiye şehrini kurup fener inşa ettirdi.", image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800" },
-                    { step: 30, title: "Mağrib", lat: 31.7917, lng: -7.0926, quote: "Mağrib diyarına, güneşin battığı en uzak batı sınırlarına kadar ulaştı.", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800" },
-                    { step: 31, title: "Bağdat", lat: 33.3152, lng: 44.3661, quote: "Bağdat şehrinde Dicle kıyısında büyük bir medeniyet merkezi kurdu.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800" },
-                    { step: 32, title: "Hicaz & Kâbe", lat: 21.3891, lng: 39.8579, quote: "Hicaz topraklarına varıp Kâbe-i Muazzama'yı büyük bir tevazu ile ziyaret etti.", image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800" },
-                    { step: 33, title: "Mescid-i Aksa / Kudüs", lat: 31.7767, lng: 35.2345, quote: "Kudüs'e varıp Mescid-i Aksa'da ibadet edip hutbe okuttu.", image: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800" },
-                    { step: 34, title: "Karanlıklar Diyarı (Zulmet)", lat: 65.0000, lng: 40.0000, quote: "Zulümat diyarına (Karanlıklar ülkesi) girip Âb-ı Hayat (ebedilik suyu) aradı.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800" },
-                    { step: 35, title: "Cadılar Diyarı", lat: 60.0000, lng: 50.0000, quote: "Cadılar ve sihirbazlar diyarından hikmetle ve selametle geçti.", image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800" }
+                    { step: 1, title: "Rûm", lat: 39.9334, lng: 32.8597, quote: "Rûm diyarına varıp Anadolu'nun ulu kalelerini ve şehirlerini fetheyledi.", image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800", transport: "car" },
+                    { step: 2, title: "Fırat Nehri", lat: 37.1111, lng: 38.2783, quote: "Fırat suyunun kenarına gelip ordusuyla nehrin akışını temaşa kıldı.", image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800", transport: "car" },
+                    { step: 3, title: "Medâyin", lat: 33.0900, lng: 44.5800, quote: "Medâyin şehrine ulaşıp eski sultanların saraylarında ibretle gezindi.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800", transport: "car" },
+                    { step: 4, title: "İran", lat: 32.4279, lng: 53.6880, quote: "İran mülküne girip Dara'nın tahtını devirdi ve adaleti tesis eyledi.", image: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=800", transport: "car" },
+                    { step: 5, title: "Zâbilistân", lat: 31.6289, lng: 65.7372, quote: "Zâbilistân dağlarını aşıp pehlivanlar diyarından selamla geçti.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", transport: "car" },
+                    { step: 6, title: "Sîstân", lat: 30.9583, lng: 61.5333, quote: "Sîstân vilayetinin çöllerinde konaklayıp gazileriyle istişare kıldı.", image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800", transport: "car" },
+                    { step: 7, title: "Hint Ülkesi / Hindistan", lat: 28.6139, lng: 77.2090, quote: "Hindistan'ın acayip ve garip illerine varıp filleri ve ejderhaları müşahede etti.", image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800", transport: "car" },
+                    { step: 8, title: "Sind", lat: 25.3960, lng: 68.3578, quote: "Sind nehrinin deryaya döküldüğü ulu sahilde donanma kurdu.", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", transport: "ship" },
+                    { step: 9, title: "Râyic Adası", lat: 15.0000, lng: 75.0000, quote: "Râyic adasının ıssız kumsallarına çıkarak deniz ötesi sırları aradı.", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800", transport: "ship" },
+                    { step: 10, title: "Râminî Adası", lat: 12.0000, lng: 80.0000, quote: "Râminî adasında acayip mahluklar ve efsanevi hazinelerle karşılaştı.", image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800", transport: "ship" },
+                    { step: 11, title: "Vâkvâk Adası", lat: 0.0000, lng: 105.0000, quote: "Vâkvâk adasında insan meyvesi veren o meşhur acayip ağaçları gördü.", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800", transport: "ship" },
+                    { step: 12, title: "Betân / Benan Adası", lat: 5.0000, lng: 95.0000, quote: "Betân adasının sarp kayalıkları arasında zorlu bir deniz seferi yaptı.", image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800", transport: "ship" },
+                    { step: 13, title: "Etvârib / Etvâriyye Adası", lat: 8.0000, lng: 73.0000, quote: "Etvârib adasında deryanın dalgalarıyla boğuşup yönünü tayin eyledi.", image: "https://images.unsplash.com/photo-1568322445389-f64ac25256e6?w=800", transport: "ship" },
+                    { step: 14, title: "Câbe / Cava Adası", lat: -7.5361, lng: 112.2384, quote: "Câbe adasının baharat kokulu ormanlarında çadır kurdu.", image: "https://images.unsplash.com/photo-1599839575945-a9e330adc30d?w=800", transport: "ship" },
+                    { step: 15, title: "Lengâvûs / Lenkâvûs Adası", lat: 3.1390, lng: 101.6869, quote: "Lengâvûs adasında denizin derinliklerinden gelen gizli sesleri dinledi.", image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800", transport: "ship" },
+                    { step: 16, title: "Tinnîn Adası", lat: 10.0000, lng: 85.0000, quote: "Tinnîn adasında ejderha misali büyük yaratıkların menziline uğradı.", image: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=800", transport: "ship" },
+                    { step: 17, title: "Selâmıt / Selamit Adası", lat: 18.0000, lng: 57.0000, quote: "Selâmıt adasında selametle karaya ayak basıp şükür namazı kıldı.", image: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800", transport: "ship" },
+                    { step: 18, title: "Elmas Vadisi", lat: 35.0000, lng: 70.0000, quote: "Elmas vadisinde kartalların yardımıyla devasa elmasları toplattı.", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800", transport: "car" },
+                    { step: 19, title: "Billur Köşk", lat: 38.0000, lng: 65.0000, quote: "Billur köşkün gümüş ve camdan yapılmış ihtişamına hayran kaldı.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800", transport: "car" },
+                    { step: 20, title: "Çin", lat: 39.9042, lng: 116.4074, quote: "Çin ülkesine varıp seddi aştı ve Doğu'nun kağanından haraç aldı.", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800", transport: "car" },
+                    { step: 21, title: "Kişmîr / Keşmir", lat: 33.7782, lng: 76.5762, quote: "Keşmir vadisinin yeşillikleri arasında dervişlerle sohbet eyledi.", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", transport: "car" },
+                    { step: 22, title: "Türk Ülkesi", lat: 45.0000, lng: 70.0000, quote: "Türk ellerine varıp Alp erlerin mertliğini ve yaylaklarını müşahede kıldı.", image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800", transport: "car" },
+                    { step: 23, title: "Tatargar", lat: 48.0000, lng: 80.0000, quote: "Tatargar vilayetinin hudut boylarında karargah kurdu.", image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800", transport: "car" },
+                    { step: 24, title: "Rus Ülkesi", lat: 55.7558, lng: 37.6173, quote: "Rus diyarının soğuk ve karlı ormanlarında kuzey seferini tamamladı.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", transport: "car" },
+                    { step: 25, title: "Mâzenderân", lat: 36.5656, lng: 53.0586, quote: "Mâzenderân diyarında periler ve devler efsanesine konu olan dağları gezdi.", image: "https://images.unsplash.com/photo-1599839575945-a9e330adc30d?w=800", transport: "car" },
+                    { step: 26, title: "Horasan", lat: 36.2970, lng: 59.6062, quote: "Horasan ilinin irfan meclislerinde alimlerle ilmi münazara kıldı.", image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800", transport: "car" },
+                    { step: 27, title: "Mısır", lat: 30.0444, lng: 31.2357, quote: "Mısır'a varıp Nil nehrinin bereketli topraklarında adaletle hükmetti.", image: "https://images.unsplash.com/photo-1568322445389-f64ac25256e6?w=800", transport: "car" },
+                    { step: 28, title: "Nil Nehri", lat: 30.1000, lng: 31.3000, quote: "Nil nehrinin taşkın sularını ve suyunun gizemini ulemaya sordu.", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800", transport: "ship" },
+                    { step: 29, title: "İskenderiyye", lat: 31.2001, lng: 29.9187, quote: "Kendi adıyla anılan İskenderiye şehrini kurup fener inşa ettirdi.", image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800", transport: "ship" },
+                    { step: 30, title: "Mağrib", lat: 31.7917, lng: -7.0926, quote: "Mağrib diyarına, güneşin battığı en uzak batı sınırlarına kadar ulaştı.", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800", transport: "car" },
+                    { step: 31, title: "Bağdat", lat: 33.3152, lng: 44.3661, quote: "Bağdat şehrinde Dicle kıyısında büyük bir medeniyet merkezi kurdu.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800", transport: "car" },
+                    { step: 32, title: "Hicaz & Kâbe", lat: 21.3891, lng: 39.8579, quote: "Hicaz topraklarına varıp Kâbe-i Muazzama'yı büyük bir tevazu ile ziyaret etti.", image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800", transport: "car" },
+                    { step: 33, title: "Mescid-i Aksa / Kudüs", lat: 31.7767, lng: 35.2345, quote: "Kudüs'e varıp Mescid-i Aksa'da ibadet edip hutbe okuttu.", image: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800", transport: "car" },
+                    { step: 34, title: "Karanlıklar Diyarı (Zulmet)", lat: 65.0000, lng: 40.0000, quote: "Zulümat diyarına (Karanlıklar ülkesi) girip Âb-ı Hayat (ebedilik suyu) aradı.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", transport: "car" },
+                    { step: 35, title: "Cadılar Diyarı", lat: 60.0000, lng: 50.0000, quote: "Cadılar ve sihirbazlar diyarından hikmetle ve selametle geçti.", image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800", transport: "car" }
                 ]
             }
         ];
@@ -373,23 +387,35 @@
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Standart Harita Katmanı (Sabit)
         let currentLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
         let activeMarkers = [];
         let activePolyline = null;
         let activeWorkId = null;
+        let movingMarker = null;
+        let animationInterval = null;
+
+        function toggleSpeedMenu() {
+            document.getElementById('speed-menu').classList.toggle('show');
+            document.getElementById('font-style-menu').classList.remove('show');
+            document.getElementById('lang-menu').classList.remove('show');
+        }
 
         function toggleFontMenu() {
             document.getElementById('font-style-menu').classList.toggle('show');
+            document.getElementById('speed-menu').classList.remove('show');
             document.getElementById('lang-menu').classList.remove('show');
         }
 
         function toggleLangMenu() {
             document.getElementById('lang-menu').classList.toggle('show');
+            document.getElementById('speed-menu').classList.remove('show');
             document.getElementById('font-style-menu').classList.remove('show');
         }
 
         window.addEventListener('click', function(e) {
+            if (!document.getElementById('speed-container').contains(e.target)) {
+                document.getElementById('speed-menu').classList.remove('show');
+            }
             if (!document.getElementById('font-container').contains(e.target)) {
                 document.getElementById('font-style-menu').classList.remove('show');
             }
@@ -397,6 +423,14 @@
                 document.getElementById('lang-menu').classList.remove('show');
             }
         });
+
+        function setSpeed(multiplier, labelText, btnElement) {
+            animationSpeedMultiplier = multiplier;
+            document.getElementById('speed-btn').innerText = `⚡ Hız: ${labelText}`;
+            document.querySelectorAll('.speed-opt').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById('speed-menu').classList.remove('show');
+        }
 
         function setLanguage(lang) {
             currentLang = lang;
@@ -428,11 +462,19 @@
         }
 
         function clearMapElements() {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
             activeMarkers.forEach(m => map.removeLayer(m));
             activeMarkers = [];
             if (activePolyline) {
                 map.removeLayer(activePolyline);
                 activePolyline = null;
+            }
+            if (movingMarker) {
+                map.removeLayer(movingMarker);
+                movingMarker = null;
             }
         }
 
@@ -481,6 +523,60 @@
             if (boundsPoints.length > 0) {
                 map.fitBounds(L.latLngBounds(boundsPoints), { padding: [50, 50], maxZoom: 8, animate: true });
             }
+
+            // Hareketli Araç / Gemi Animasyonunu Başlat
+            startJourneyAnimation(work.journey);
+        }
+
+        // Pim boyutunda (34x34) harita üstünde ilerleyen araba / gemi animasyon fonksiyonu
+        function startJourneyAnimation(journey) {
+            let currentSegment = 0;
+            let stepProgress = 0;
+            const stepsCount = 40; // Segment başı ara adım sayısı
+
+            function getVehicleIcon(type) {
+                const bg = type === 'ship' ? '#0284c7' : '#2563eb'; // Gemi için mavi ton, araba için koyu mavi
+                const emoji = type === 'ship' ? '🚢' : '🚗';
+                return L.divIcon({
+                    className: 'moving-vehicle-icon',
+                    html: `<div style="background: ${bg}; border: 2px solid #fff; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.7);">${emoji}</div>`,
+                    iconSize: [34, 34],
+                    iconAnchor: [17, 17]
+                });
+            }
+
+            if (journey.length < 2) return;
+
+            let startPoint = [journey[0].lat, journey[0].lng];
+            let currentType = journey[0].transport || 'car';
+
+            movingMarker = L.marker(startPoint, { icon: getVehicleIcon(currentType) }).addTo(map);
+
+            animationInterval = setInterval(() => {
+                if (currentSegment >= journey.length - 1) {
+                    currentSegment = 0; // Başa sarıp döngü yapabilir veya durabilir
+                }
+
+                let p1 = journey[currentSegment];
+                let p2 = journey[currentSegment + 1];
+
+                let lat1 = p1.lat, lng1 = p1.lng;
+                let lat2 = p2.lat, lng2 = p2.lng;
+
+                let t = stepProgress / stepsCount;
+                let currentLat = lat1 + (lat2 - lat1) * t;
+                let currentLng = lng1 + (lng2 - lng1) * t;
+
+                let activeTransport = p2.transport || 'car';
+                movingMarker.setIcon(getVehicleIcon(activeTransport));
+                movingMarker.setLatLng([currentLat, currentLng]);
+
+                stepProgress++;
+                if (stepProgress > stepsCount) {
+                    stepProgress = 0;
+                    currentSegment++;
+                }
+            }, 80 / animationSpeedMultiplier);
         }
 
         function renderApp() {
@@ -496,7 +592,7 @@
                 const card = document.createElement('div');
                 card.className = `work-card ${activeWorkId === item.id ? 'highlight' : ''}`;
                 
-                let activeBadgeHtml = activeWorkId === item.id ? '<span class="active-badge">Rotada Aktif (35 Durak)</span>' : '';
+                let activeBadgeHtml = activeWorkId === item.id ? '<span class="active-badge">Rotada Aktif (35 Durak & Animasyon)</span>' : '';
 
                 card.innerHTML = `
                     ${activeBadgeHtml}
@@ -536,7 +632,7 @@
                         <h4>${item.title}</h4>
                         <em>Yazar: ${item.author}</em>
                         <img src="${item.image}" alt="${item.title}">
-                        <p><strong>Yazıldığı Merkez:</strong> ${item.center}<br><em>(35 Duraklı rotayı görmek için karta veya pime tıklayın)</em></p>
+                        <p><strong>Yazıldığı Merkez:</strong> ${item.center}<br><em>(35 Duraklı araba/gemi rotasını başlatmak için tıklayın)</em></p>
                     `);
 
                     marker.on('click', function() {
