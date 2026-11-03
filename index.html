@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
-            --bg-color: #0b0b0d;
+            --bg-color: #050508;
             --panel-bg: rgba(28, 28, 30, 0.88);
             --card-bg: rgba(44, 44, 46, 0.65);
             --card-hover: rgba(58, 58, 60, 0.9);
@@ -121,13 +121,30 @@
             font-weight: 500;
         }
 
-        /* Harita ve Küre Alanı (Görsel referanstaki koyu mavi okyanus ve gri kara teması) */
+        /* Harita ve Yıldızlı Uzay Küre Alanı */
         #map { 
             flex-grow: 1; 
             height: 100%; 
             width: 100%; 
-            background-color: #0f172a !important; 
+            /* Arka plana uzay hissi veren parlayan yıldızlar ve derin mavi doku eklendi */
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #030712 100%) !important;
             position: relative; 
+        }
+
+        /* Yıldız Efekti Deseni */
+        #map::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(white 1px, transparent 0),
+                radial-gradient(rgba(255,255,255,0.6) 1.5px, transparent 0),
+                radial-gradient(rgba(245,158,11,0.5) 2px, transparent 0);
+            background-size: 120px 120px, 200px 200px, 300px 300px;
+            background-position: 0 0, 40px 60px, 100px 150px;
+            opacity: 0.45;
+            pointer-events: none;
+            z-index: 400;
         }
 
         /* Popup Tasarımı */
@@ -276,7 +293,7 @@
             </div>
         </div>
 
-        <!-- Dil Seçici Butonu (Tüm içeriği çeviren kapsamlı sözlük) -->
+        <!-- Dil Seçici Butonu -->
         <div style="position: relative;" id="lang-container">
             <button class="pill-btn" onclick="toggleLangMenu()">🌐 Dil / Lang</button>
             <div id="lang-menu" class="dropdown-menu">
@@ -310,7 +327,6 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 10 Dil için Kapsamlı İçerik Çeviri Sözlüğü
         const translations = {
             tr: {
                 title: "İskendernâme Atlası",
@@ -445,7 +461,7 @@
                 author: "艾哈迈迪 (Ahmedî)",
                 workPeriod: "14世纪末 - 15世纪初",
                 workCenter: "阿马西亚",
-                workChar: "长诗/史诗",
+                workForm: "长诗/史诗",
                 workLang: "古安纳托利亚突厥语",
                 workPurpose: "向统治者传授治国、正义与哲学之道。",
                 subject: "亚历山大大帝的传奇与历史生平。"
@@ -594,7 +610,7 @@
             }
         ];
 
-        // 3D Küresel Görünüm (Orthographic / Globe Projection Stili)
+        // Haritayı güvenli ve hatasız başlatma
         const map = L.map('map', { 
             zoomControl: false,
             minZoom: 2,
@@ -603,9 +619,10 @@
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Gönderdiğin resimdeki gibi koyu mavi okyanus ve detaylı harita katmanı
+        // Şık, karanlık ve şehir/ülke detaylı CartoDB Dark Matter katmanı
         let currentLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { 
             maxZoom: 19, 
+            subdomains: 'abcd',
             attribution: '&copy; OpenStreetMap & CARTO' 
         }).addTo(map);
 
