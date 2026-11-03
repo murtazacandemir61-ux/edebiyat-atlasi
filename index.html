@@ -7,7 +7,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Leaflet Harita Kütüphanesi CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <style>
         :root {
             --bg-color: #0b0b0d;
@@ -302,7 +302,7 @@
     <div id="map"></div>
 
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script>
         const translations = {
             tr: {
@@ -349,7 +349,7 @@
                 workForm: "Masnavi (Historical, Epic & Philosophical Work)",
                 workLang: "Old Anatolian Turkish (Ottoman)",
                 workPurpose: "To guide rulers on governance, justice, ethics, and philosophy; portraying the ideal monarch.",
-                subject: "The legendary and historical life of Alexander the Great, his campaigns from East to West."
+                workSubject: "The legendary and historical life of Alexander the Great, his campaigns from East to West."
             },
             fr: {
                 title: "Atlas d'İskendernâme",
@@ -372,7 +372,7 @@
                 workForm: "Mathnawi (Œuvre Historique, Épique & Philosophique)",
                 workLang: "Vieux Turc Anatolien",
                 workPurpose: "Conseiller les souverains sur la gouvernance, la justice et la morale.",
-                subject: "La vie légendaire et historique d'Alexandre le Grand."
+                workSubject: "La vie légendaire et historique d'Alexandre le Grand."
             },
             ar: {
                 title: "أطلس إسكندرنامه",
@@ -395,7 +395,7 @@
                 workForm: "مثنوي (عمل تاريخي وملحمي وفلسفي)",
                 workLang: "التركية الأناضولية القديمة",
                 workPurpose: "توجيه الحكام في الإدارة والعدالة والأخلاق.",
-                subject: "الحياة الأسطورية والتاريخية للإسكندر الأكبر."
+                workSubject: "الحياة الأسطورية والتاريخية للإسكندر الأكبر."
             },
             fa: {
                 title: "اتلس اسکندرنامه",
@@ -418,7 +418,7 @@
                 workForm: "مثنوی (اثری تاریخی، حماسی و فلسفی)",
                 workLang: "ترکی کهن آناتولی",
                 workPurpose: "راهنمایی حاکمان در امر کشورداری و عدالت.",
-                subject: "زندگی اسطوره‌ای و تاریخی اسکندر مقدونی."
+                workSubject: "زندگی اسطوره‌ای و تاریخی اسکندر مقدونی."
             },
             zh: {
                 title: "亚历山大史诗地图集",
@@ -441,7 +441,7 @@
                 workForm: "长诗/史诗",
                 workLang: "古安纳托利亚突厥语",
                 workPurpose: "向统治者传授治国、正义与哲学之道。",
-                subject: "亚历山大大帝的传奇与历史生平。"
+                workSubject: "亚历山大大帝的传奇与历史生平。"
             },
             de: {
                 title: "İskendernâme Atlas",
@@ -464,7 +464,7 @@
                 workForm: "Mathnawi (Historisches & Philosophisches Werk)",
                 workLang: "Altanatolisches Türkisch",
                 workPurpose: "Herrscher in Staatsführung und Moral unterweisen.",
-                subject: "Das legendäre Leben Alexander des Großen."
+                workSubject: "Das legendäre Leben Alexander des Großen."
             },
             el: {
                 title: "Άτλας Ισκεντερνάμε",
@@ -484,10 +484,10 @@
                 author: "Ahmedî",
                 workPeriod: "14ος - 15ος Αιώνας",
                 workCenter: "Αμάσεια",
-                workForm: "Έπος / Μεσνەβί",
+                workForm: "Έπος / Μεσνεβί",
                 workLang: "Παλαιά Ανατολιακή Τουρκική",
                 workPurpose: "Διδασκαλία ηγεμόνων στη δικαιοσύνη.",
-                subject: "Η ζωή του Μεγάλου Αλεξάνδρου."
+                workSubject: "Η ζωή του Μεγάλου Αλεξάνδρου."
             },
             ja: {
                 title: "イスカンダルナメ アトラス",
@@ -510,7 +510,7 @@
                 workForm: "マスナヴィー（歴史・哲学叙事詩）",
                 workLang: "古アナトリア・トルコ語",
                 workPurpose: "統治者に正義と道徳を教えるため。",
-                subject: "アレクサンドロス大王の伝説的生涯。"
+                workSubject: "アレクサンドロス大王の伝説的生涯。"
             },
             hi: {
                 title: "इस्केंदरनामे एटलस",
@@ -533,7 +533,7 @@
                 workForm: "मसनवी (ऐतिहासिक और दार्शनिक)",
                 workLang: "पुरानी अनाटोलियन तुर्की",
                 workPurpose: "शासकों को शासन और न्याय की शिक्षा देना।",
-                subject: "सिकंदर महान का जीवन और अभियान।"
+                workSubject: "सिकंदर महान का जीवन और अभियान।"
             }
         };
 
@@ -587,7 +587,7 @@
             }
         ];
 
-        // Orijinal OpenStreetMap Haritası (Hiçbir anahtar istemeyen en sade ve temiz yapı)
+        // Google Maps haritası (anahtar istemeyen karo katmanı)
         const map = L.map('map', { 
             zoomControl: false,
             minZoom: 3,
@@ -596,9 +596,11 @@
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        let currentLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-            maxZoom: 19, 
-            attribution: '&copy; OpenStreetMap' 
+        // lyrs=m → harita | s → uydu | y → uydu + yol/yer adları | p → arazi
+        let currentLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=m&hl=tr&x={x}&y={y}&z={z}', { 
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '&copy; Google Maps' 
         }).addTo(map);
 
         let activeMarkers = [];
