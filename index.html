@@ -587,7 +587,7 @@
             }
         ];
 
-        // Orijinal hatasız standart Leaflet haritası
+        // Orijinal OpenStreetMap Haritası (Hiçbir anahtar istemeyen en sade ve temiz yapı)
         const map = L.map('map', { 
             zoomControl: false,
             minZoom: 3,
@@ -596,7 +596,6 @@
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Hiçbir hata vermeyen güvenli OpenStreetMap standart harita katmanı
         let currentLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
             maxZoom: 19, 
             attribution: '&copy; OpenStreetMap' 
