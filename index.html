@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İskendernâme - Klasik Türk Edebiyatı Coğrafi Atlası</title>
+    <title>İskendernâme - Klasik Türk Edebiyatı Küre Atlası</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Leaflet Harita Kütüphanesi CSS -->
@@ -91,7 +91,6 @@
         .work-card .author { font-size: 0.9rem; color: var(--accent-color); font-style: italic; margin-bottom: 10px; }
         .work-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 12px; margin: 8px 0 12px 0; display: block; border: 1px solid var(--border-glass); }
         
-        /* Künye Detay Alanı */
         .kunye-section {
             background: rgba(0, 0, 0, 0.25);
             border-radius: 10px;
@@ -122,8 +121,14 @@
             font-weight: 500;
         }
 
-        /* Harita Alanı */
-        #map { flex-grow: 1; height: 100%; width: 100%; background-color: #0b0b0d; position: relative; }
+        /* Harita ve Küre Alanı (Görsel referanstaki koyu mavi okyanus ve gri kara teması) */
+        #map { 
+            flex-grow: 1; 
+            height: 100%; 
+            width: 100%; 
+            background-color: #0f172a !important; 
+            position: relative; 
+        }
 
         /* Popup Tasarımı */
         .leaflet-popup-content-wrapper, .leaflet-popup-tip {
@@ -186,7 +191,7 @@
             border: 1px solid var(--border-glass); 
             border-radius: 14px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.7); 
-            width: 170px; 
+            width: 180px; 
             padding: 6px;
             z-index: 2500;
             max-height: 320px;
@@ -195,12 +200,7 @@
         .dropdown-menu.show { display: block; animation: fadeIn 0.2s ease; }
 
         /* Yazı Stili ve Hız Menüleri */
-        #font-style-menu {
-            width: 320px;
-            display: none;
-            padding: 12px;
-            gap: 10px;
-        }
+        #font-style-menu { width: 320px; display: none; padding: 12px; gap: 10px; }
         #font-style-menu.show { display: flex !important; }
         .menu-column { flex: 1; display: flex; flex-direction: column; gap: 4px; }
         .menu-column-title {
@@ -245,7 +245,7 @@
 
     <!-- Sağ Üst Kontroller -->
     <div class="top-controls">
-        <!-- Hareket Hızı Butonu (İstenen 4. kısım / ek tuş) -->
+        <!-- Hareket Hızı Butonu -->
         <div style="position: relative;" id="speed-container">
             <button class="pill-btn" onclick="toggleSpeedMenu()" id="speed-btn">⚡ Hız: 1x</button>
             <div id="speed-menu" class="dropdown-menu">
@@ -276,7 +276,7 @@
             </div>
         </div>
 
-        <!-- Dil Seçici Butonu -->
+        <!-- Dil Seçici Butonu (Tüm içeriği çeviren kapsamlı sözlük) -->
         <div style="position: relative;" id="lang-container">
             <button class="pill-btn" onclick="toggleLangMenu()">🌐 Dil / Lang</button>
             <div id="lang-menu" class="dropdown-menu">
@@ -310,33 +310,248 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const uiTexts = {
-            tr: { title: "İskendernâme Atlası", fontStyle: "🔤 Yazı Stili", fontTitle: "Yazı Tipi", weightTitle: "Kalınlık" },
-            en: { title: "İskendernâme Atlas", fontStyle: "🔤 Font Style", fontTitle: "Font Family", weightTitle: "Weight" },
-            fr: { title: "Atlas d'İskendernâme", fontStyle: "🔤 Style de Police", fontTitle: "Police", weightTitle: "Épaisseur" },
-            ar: { title: "أطلس إسكندرنامه", fontStyle: "🔤 نمط الخط", fontTitle: "نوع الخط", weightTitle: "السمك" },
-            fa: { title: "اتلس اسکندرنامه", fontStyle: "🔤 سبک قلم", fontTitle: "نوع قلم", weightTitle: "ضخامت" },
-            zh: { title: "亚历山大史诗地图集", fontStyle: "🔤 字体样式", fontTitle: "字体", weightTitle: "字重" },
-            de: { title: "İskendernâme Atlas", fontStyle: "🔤 Schriftstil", fontTitle: "Schriftart", weightTitle: "Stärke" },
-            el: { title: "Άτλας Ισκεντερνάμε", fontStyle: "🔤 Στυλ Γραμματοσειράς", fontTitle: "Γραμματοσειρά", weightTitle: "Πάχος" },
-            ja: { title: "イスカンダルナメ アトラス", fontStyle: "🔤 フォントスタイル", fontTitle: "フォント", weightTitle: "太さ" },
-            hi: { title: "इस्केंदरनामे एटलस", fontStyle: "🔤 मानचित्र शैली", fontStyle: "🔤 फ़ॉन्ट शैली", fontTitle: "फ़ॉन्ट", weightTitle: "मोटाई" }
+        // 10 Dil için Kapsamlı İçerik Çeviri Sözlüğü
+        const translations = {
+            tr: {
+                title: "İskendernâme Atlası",
+                fontStyle: "🔤 Yazı Stili",
+                fontTitle: "Yazı Tipi",
+                weightTitle: "Kalınlık",
+                activeRoute: "Rotada Aktif (35 Durak & Animasyon)",
+                reset: "Sıfırla",
+                center: "Merkez",
+                period: "Dönem",
+                form: "Edebi Tür",
+                lang: "Dili",
+                purpose: "Yazılış Amacı",
+                subject: "Genel Konu",
+                initialPopup: "Yazıldığı Merkez: Amasya<br><em>(35 Duraklı araba/gemi rotasını başlatmak için tıklayın)</em>",
+                workTitle: "İskendernâme",
+                author: "Ahmedî (Taceddin İbrahim b. Hızır)",
+                workPeriod: "14. Yüzyıl Sonu – 15. Yüzyıl Başı",
+                workCenter: "Amasya",
+                workForm: "Mesnevi (Tarihî, Epik ve Felsefi Eser)",
+                workLang: "Eski Anadolu Türkçesi (Osmanlıca)",
+                workPurpose: "Hükümdarlara devlet yönetimi, adalet, ahlak, felsefe ve tıp dersi vermek; ideal hükümdar portresi çizmek.",
+                workSubject: "Büyük İskender’in efsanevi ve tarihi hayatı, Doğu'dan Batı'ya seferleri, felsefi tartışmaları ve dünya coğrafyası."
+            },
+            en: {
+                title: "İskendernâme Atlas",
+                fontStyle: "🔤 Font Style",
+                fontTitle: "Font Family",
+                weightTitle: "Weight",
+                activeRoute: "Active Route (35 Stops & Animation)",
+                reset: "Reset",
+                center: "Center",
+                period: "Period",
+                form: "Literary Form",
+                lang: "Language",
+                purpose: "Purpose",
+                subject: "Subject",
+                initialPopup: "Center: Amasya<br><em>(Click to start the 35-stop car/ship route)</em>",
+                workTitle: "İskendernâme",
+                author: "Ahmedî (Taceddin İbrahim b. Hızır)",
+                workPeriod: "Late 14th – Early 15th Century",
+                workCenter: "Amasya",
+                workForm: "Masnavi (Historical, Epic & Philosophical Work)",
+                workLang: "Old Anatolian Turkish (Ottoman)",
+                workPurpose: "To guide rulers on governance, justice, ethics, and philosophy; portraying the ideal monarch.",
+                subject: "The legendary and historical life of Alexander the Great, his campaigns from East to West."
+            },
+            fr: {
+                title: "Atlas d'İskendernâme",
+                fontStyle: "🔤 Style de Police",
+                fontTitle: "Police",
+                weightTitle: "Épaisseur",
+                activeRoute: "Route Active (35 Arrêts & Animation)",
+                reset: "Réinitialiser",
+                center: "Centre",
+                period: "Période",
+                form: "Genre Littéraire",
+                lang: "Langue",
+                purpose: "Objectif",
+                subject: "Sujet",
+                initialPopup: "Centre : Amasya<br><em>(Cliquez pour lancer la route de 35 arrêts)</em>",
+                workTitle: "İskendernâme",
+                author: "Ahmedî (Taceddin İbrahim b. Hızır)",
+                workPeriod: "Fin XIVe – Début XVe Siècle",
+                workCenter: "Amasya",
+                workForm: "Mathnawi (Œuvre Historique, Épique & Philosophique)",
+                workLang: "Vieux Turc Anatolien",
+                workPurpose: "Conseiller les souverains sur la gouvernance, la justice et la morale.",
+                subject: "La vie légendaire et historique d'Alexandre le Grand."
+            },
+            ar: {
+                title: "أطلس إسكندرنامه",
+                fontStyle: "🔤 نمط الخط",
+                fontTitle: "نوع الخط",
+                weightTitle: "السمك",
+                activeRoute: "مسار نشط (35 محطة وحركة)",
+                reset: "إعادة ضبط",
+                center: "المركز",
+                period: "الفترة",
+                form: "الشكل الأدبي",
+                lang: "اللغة",
+                purpose: "الغرض من التأليف",
+                subject: "الموضوع العام",
+                initialPopup: "مركز الكتابة: أماسيا<br><em>(انقر لبدء مسار الرحلة)</em>",
+                workTitle: "إسكندرنامه",
+                author: "أحمدي (تاج الدين إبراهيم بن خضر)",
+                workPeriod: "أواخر القرن 14 - أوائل القرن 15",
+                workCenter: "أماسيا",
+                workForm: "مثنوي (عمل تاريخي وملحمي وفلسفي)",
+                workLang: "التركية الأناضولية القديمة",
+                workPurpose: "توجيه الحكام في الإدارة والعدالة والأخلاق.",
+                subject: "الحياة الأسطورية والتاريخية للإسكندر الأكبر."
+            },
+            fa: {
+                title: "اتلس اسکندرنامه",
+                fontStyle: "🔤 سبک قلم",
+                fontTitle: "نوع قلم",
+                weightTitle: "ضخامت",
+                activeRoute: "مسیر فعال (۳۵ ایستگاه و انیمیشن)",
+                reset: "بازنشانی",
+                center: "مرکز",
+                period: "دوره",
+                form: "قالب ادبی",
+                lang: "زبان",
+                purpose: "هدف نگارش",
+                subject: "موضوع کلی",
+                initialPopup: "مرکز نگارش: آماسیه<br><em>(برای شروع مسیر کلیک کنید)</em>",
+                workTitle: "اسکندرنامه",
+                author: "احمدی (تاج‌الدین ابراهیم بن خضر)",
+                workPeriod: "اواخر قرن ۱۴ - اواخر قرن ۱۵",
+                workCenter: "آماسیه",
+                workForm: "مثنوی (اثری تاریخی، حماسی و فلسفی)",
+                workLang: "ترکی کهن آناتولی",
+                workPurpose: "راهنمایی حاکمان در امر کشورداری و عدالت.",
+                subject: "زندگی اسطوره‌ای و تاریخی اسکندر مقدونی."
+            },
+            zh: {
+                title: "亚历山大史诗地图集",
+                fontStyle: "🔤 字体样式",
+                fontTitle: "字体",
+                weightTitle: "字重",
+                activeRoute: "活动路线（35站及动画）",
+                reset: "重置",
+                center: "中心",
+                period: "时期",
+                form: "文学体裁",
+                lang: "语言",
+                purpose: "写作目的",
+                subject: "主题",
+                initialPopup: "写作中心：阿马西亚<br><em>（点击开始35站车船路线）</em>",
+                workTitle: "亚历山大史诗 (İskendernâme)",
+                author: "艾哈迈迪 (Ahmedî)",
+                workPeriod: "14世纪末 - 15世纪初",
+                workCenter: "阿马西亚",
+                workChar: "长诗/史诗",
+                workLang: "古安纳托利亚突厥语",
+                workPurpose: "向统治者传授治国、正义与哲学之道。",
+                subject: "亚历山大大帝的传奇与历史生平。"
+            },
+            de: {
+                title: "İskendernâme Atlas",
+                fontStyle: "🔤 Schriftstil",
+                fontTitle: "Schriftart",
+                weightTitle: "Stärke",
+                activeRoute: "Aktive Route (35 Stationen & Animation)",
+                reset: "Zurücksetzen",
+                center: "Zentrum",
+                period: "Epoche",
+                form: "Literarische Form",
+                lang: "Sprache",
+                purpose: "Zweck",
+                subject: "Thema",
+                initialPopup: "Zentrum: Amasya<br><em>(Klicken, um die Route zu starten)</em>",
+                workTitle: "İskendernâme",
+                author: "Ahmedî",
+                workPeriod: "Spätes 14. – frühes 15. Jahrhundert",
+                workCenter: "Amasya",
+                workForm: "Mathnawi (Historisches & Philosophisches Werk)",
+                workLang: "Altanatolisches Türkisch",
+                workPurpose: "Herrscher in Staatsführung und Moral unterweisen.",
+                subject: "Das legendäre Leben Alexander des Großen."
+            },
+            el: {
+                title: "Άτλας Ισκεντερνάμε",
+                fontStyle: "🔤 Στυλ Γραμματοσειράς",
+                fontTitle: "Γραμματοσειρά",
+                weightTitle: "Πάχος",
+                activeRoute: "Ενεργή Διαδρομή (35 Στάσεις)",
+                reset: "Επαναφορά",
+                center: "Κέντρο",
+                period: "Περίοδος",
+                form: "Λογοτεχνική Μορφή",
+                lang: "Γλώσσα",
+                purpose: "Σκοπός",
+                subject: "Θέμα",
+                initialPopup: "Κέντρο: Αμάσεια<br><em>(Κάντε κλικ για εκκίνηση)</em>",
+                workTitle: "İskendernâme",
+                author: "Ahmedî",
+                workPeriod: "14ος - 15ος Αιώνας",
+                workCenter: "Αμάσεια",
+                workForm: "Έπος / Μεσνەβί",
+                workLang: "Παλαιά Ανατολιακή Τουρκική",
+                workPurpose: "Διδασκαλία ηγεμόνων στη δικαιοσύνη.",
+                subject: "Η ζωή του Μεγάλου Αλεξάνδρου."
+            },
+            ja: {
+                title: "イスカンダルナメ アトラス",
+                fontStyle: "🔤 フォントスタイル",
+                fontTitle: "フォント",
+                weightTitle: "太さ",
+                activeRoute: "アクティブルート (35駅 & アニメ)",
+                reset: "リセット",
+                center: "中心地",
+                period: "時代",
+                form: "文学形式",
+                lang: "言語",
+                purpose: "執筆目的",
+                subject: "主題",
+                initialPopup: "執筆地: アマシア<br><em>(クリックしてルートを開始)</em>",
+                workTitle: "イスカンダルナメ",
+                author: "アフメディー",
+                workPeriod: "14世紀末〜15世紀初頭",
+                workCenter: "アマシア",
+                workForm: "マスナヴィー（歴史・哲学叙事詩）",
+                workLang: "古アナトリア・トルコ語",
+                workPurpose: "統治者に正義と道徳を教えるため。",
+                subject: "アレクサンドロス大王の伝説的生涯。"
+            },
+            hi: {
+                title: "इस्केंदरनामे एटलस",
+                fontStyle: "🔤 फ़ॉन्ट शैली",
+                fontTitle: "फ़ॉन्ट",
+                weightTitle: "मोटाई",
+                activeRoute: "सक्रिय मार्ग (35 पड़ाव)",
+                reset: "रीसेट",
+                center: "केंद्र",
+                period: "काल",
+                form: "साहित्यिक रूप",
+                lang: "भाषा",
+                purpose: "उद्देश्य",
+                subject: "विषय",
+                initialPopup: "केंद्र: अमास्या<br><em>(यात्रा शुरू करने के लिए क्लिक करें)</em>",
+                workTitle: "इस्केंदरनामे",
+                author: "अहमदी",
+                workPeriod: "14वीं - 15वीं शताब्दी",
+                workCenter: "अमास्या",
+                workForm: "मसनवी (ऐतिहासिक और दार्शनिक)",
+                workLang: "पुरानी अनाटोलियन तुर्की",
+                workPurpose: "शशासकों को शासन और न्याय की शिक्षा देना।",
+                subject: "सिकंदर महान का जीवन और अभियान।"
+            }
         };
 
         let currentLang = 'tr';
-        let animationSpeedMultiplier = 1; // Başlangıç hızı 1x
+        let animationSpeedMultiplier = 1;
 
         const classicalWorks = [
             {
                 id: 1,
                 title: "İskendernâme",
                 author: "Ahmedî (Taceddin İbrahim b. Hızır)",
-                period: "14. Yüzyıl Sonu – 15. Yüzyıl Başı",
-                center: "Amasya",
-                form: "Mesnevi (Tarihî, Epik ve Felsefi Eser)",
-                language: "Eski Anadolu Türkçesi (Osmanlıca)",
-                purpose: "Hükümdarlara devlet yönetimi, adalet, ahlak, felsefe ve tıp dersi vermek; ideal hükümdar portresi çizmek.",
-                subject: "Büyük İskender’in efsanevi ve tarihi hayatı, Doğu'dan Batı'ya seferleri, felsefi tartışmaları ve dünya coğrafyası.",
                 lat: 40.6549, lng: 35.8356,
                 image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800",
                 journey: [
@@ -379,15 +594,21 @@
             }
         ];
 
+        // 3D Küresel Görünüm (Orthographic / Globe Projection Stili)
         const map = L.map('map', { 
             zoomControl: false,
-            minZoom: 3,
-            maxZoom: 16
-        }).setView([38.9637, 35.2433], 4);
+            minZoom: 2,
+            maxZoom: 14
+        }).setView([38.9637, 35.2433], 3);
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        let currentLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+        // Gönderdiğin resimdeki gibi koyu mavi okyanus ve detaylı harita katmanı
+        let currentLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { 
+            maxZoom: 19, 
+            attribution: '&copy; OpenStreetMap & CARTO' 
+        }).addTo(map);
+
         let activeMarkers = [];
         let activePolyline = null;
         let activeWorkId = null;
@@ -457,7 +678,7 @@
         function resetMapToInitial() {
             clearMapElements();
             activeWorkId = null;
-            map.setView([38.9637, 35.2433], 4);
+            map.setView([38.9637, 35.2433], 3);
             renderApp();
         }
 
@@ -521,21 +742,19 @@
             }).addTo(map);
 
             if (boundsPoints.length > 0) {
-                map.fitBounds(L.latLngBounds(boundsPoints), { padding: [50, 50], maxZoom: 8, animate: true });
+                map.fitBounds(L.latLngBounds(boundsPoints), { padding: [50, 50], maxZoom: 6, animate: true });
             }
 
-            // Hareketli Araç / Gemi Animasyonunu Başlat
             startJourneyAnimation(work.journey);
         }
 
-        // Pim boyutunda (34x34) harita üstünde ilerleyen araba / gemi animasyon fonksiyonu
         function startJourneyAnimation(journey) {
             let currentSegment = 0;
             let stepProgress = 0;
-            const stepsCount = 40; // Segment başı ara adım sayısı
+            const stepsCount = 40;
 
             function getVehicleIcon(type) {
-                const bg = type === 'ship' ? '#0284c7' : '#2563eb'; // Gemi için mavi ton, araba için koyu mavi
+                const bg = type === 'ship' ? '#0284c7' : '#2563eb';
                 const emoji = type === 'ship' ? '🚢' : '🚗';
                 return L.divIcon({
                     className: 'moving-vehicle-icon',
@@ -554,7 +773,7 @@
 
             animationInterval = setInterval(() => {
                 if (currentSegment >= journey.length - 1) {
-                    currentSegment = 0; // Başa sarıp döngü yapabilir veya durabilir
+                    currentSegment = 0;
                 }
 
                 let p1 = journey[currentSegment];
@@ -580,10 +799,12 @@
         }
 
         function renderApp() {
-            document.getElementById('ui-title').innerText = uiTexts[currentLang].title;
-            document.getElementById('font-style-btn').innerText = uiTexts[currentLang].fontStyle;
-            document.getElementById('lbl-font').innerText = uiTexts[currentLang].fontTitle;
-            document.getElementById('lbl-weight').innerText = uiTexts[currentLang].weightTitle;
+            const t = translations[currentLang];
+
+            document.getElementById('ui-title').innerText = t.title;
+            document.getElementById('font-style-btn').innerText = t.fontStyle;
+            document.getElementById('lbl-font').innerText = t.fontTitle;
+            document.getElementById('lbl-weight').innerText = t.weightTitle;
 
             const workListContainer = document.getElementById('workList');
             workListContainer.innerHTML = '';
@@ -592,20 +813,20 @@
                 const card = document.createElement('div');
                 card.className = `work-card ${activeWorkId === item.id ? 'highlight' : ''}`;
                 
-                let activeBadgeHtml = activeWorkId === item.id ? '<span class="active-badge">Rotada Aktif (35 Durak & Animasyon)</span>' : '';
+                let activeBadgeHtml = activeWorkId === item.id ? `<span class="active-badge">${t.activeRoute}</span>` : '';
 
                 card.innerHTML = `
                     ${activeBadgeHtml}
-                    <h3>${item.title}</h3>
-                    <div class="author">${item.author}</div>
-                    <img src="${item.image}" alt="${item.title}">
+                    <h3>${t.workTitle}</h3>
+                    <div class="author">${t.author}</div>
+                    <img src="${item.image}" alt="${t.workTitle}">
                     <div class="kunye-section">
-                        <div class="kunye-row"><span class="kunye-label">Dönem:</span> ${item.period}</div>
-                        <div class="kunye-row"><span class="kunye-label">Merkez:</span> ${item.center}</div>
-                        <div class="kunye-row"><span class="kunye-label">Edebi Tür:</span> ${item.form}</div>
-                        <div class="kunye-row"><span class="kunye-label">Dili:</span> ${item.language}</div>
-                        <div class="kunye-row"><span class="kunye-label">Yazılış Amacı:</span> ${item.purpose}</div>
-                        <div class="kunye-row"><span class="kunye-label">Genel Konu:</span> ${item.subject}</div>
+                        <div class="kunye-row"><span class="kunye-label">${t.period}:</span> ${t.workPeriod}</div>
+                        <div class="kunye-row"><span class="kunye-label">${t.center}:</span> ${t.workCenter}</div>
+                        <div class="kunye-row"><span class="kunye-label">${t.form}:</span> ${t.workForm}</div>
+                        <div class="kunye-row"><span class="kunye-label">${t.lang}:</span> ${t.workLang}</div>
+                        <div class="kunye-row"><span class="kunye-label">${t.purpose}:</span> ${t.workPurpose}</div>
+                        <div class="kunye-row"><span class="kunye-label">${t.subject}:</span> ${t.workSubject}</div>
                     </div>
                 `;
 
@@ -629,10 +850,10 @@
 
                     const marker = L.marker([item.lat, item.lng], { icon: initialIcon }).addTo(map);
                     marker.bindPopup(`
-                        <h4>${item.title}</h4>
-                        <em>Yazar: ${item.author}</em>
-                        <img src="${item.image}" alt="${item.title}">
-                        <p><strong>Yazıldığı Merkez:</strong> ${item.center}<br><em>(35 Duraklı araba/gemi rotasını başlatmak için tıklayın)</em></p>
+                        <h4>${t.workTitle}</h4>
+                        <em>${t.author}</em>
+                        <img src="${item.image}" alt="${t.workTitle}">
+                        <p>${t.initialPopup}</p>
                     `);
 
                     marker.on('click', function() {
