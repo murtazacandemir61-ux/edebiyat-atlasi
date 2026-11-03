@@ -121,14 +121,8 @@
             font-weight: 500;
         }
 
-        /* Sade ve Temiz Düz Harita Alanı */
-        #map { 
-            flex-grow: 1; 
-            height: 100%; 
-            width: 100%; 
-            background-color: #0b0b0d !important; 
-            position: relative; 
-        }
+        /* Harita Alanı */
+        #map { flex-grow: 1; height: 100%; width: 100%; background-color: #0b0b0d; position: relative; }
 
         /* Popup Tasarımı */
         .leaflet-popup-content-wrapper, .leaflet-popup-tip {
@@ -525,7 +519,7 @@
                 weightTitle: "मोटाई",
                 activeRoute: "सक्रिय मार्ग (35 पड़ाव)",
                 reset: "रीसेट",
-                केंद्र: "केंद्र",
+                center: "केंद्र",
                 period: "काल",
                 form: "साहित्यिक रूप",
                 lang: "भाषा",
@@ -593,7 +587,7 @@
             }
         ];
 
-        // Haritayı güvenli, hatasız ve tam merkezde başlatma
+        // Orijinal hatasız standart Leaflet haritası
         const map = L.map('map', { 
             zoomControl: false,
             minZoom: 3,
@@ -602,11 +596,10 @@
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Koyu tema (Dark Mode) okyanus ve kara uyumlu harita katmanı
-        let currentLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { 
+        // Hiçbir hata vermeyen güvenli OpenStreetMap standart harita katmanı
+        let currentLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
             maxZoom: 19, 
-            subdomains: 'abcd',
-            attribution: '&copy; OpenStreetMap & CARTO' 
+            attribution: '&copy; OpenStreetMap' 
         }).addTo(map);
 
         let activeMarkers = [];
