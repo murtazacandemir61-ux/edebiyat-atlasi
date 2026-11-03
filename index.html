@@ -579,7 +579,6 @@
 
         let currentLang = 'tr';
         let animationSpeedMultiplier = 1;
-        let myGlobe = null;
         let vehicleAnimationTimer = null;
 
         const classicalWorks = [
@@ -631,7 +630,7 @@
 
         let activeWorkId = null;
 
-        // 3D Küre Başlatma
+        // 3D Küre Başlatma (Genişletilmiş perspektif ve gece dünya dokusu)
         const container = document.getElementById('globeMap');
         const globe = Globe()
             (container)
@@ -640,10 +639,10 @@
             .backgroundColor('rgba(0,0,0,0)')
             .showAtmosphere(true)
             .atmosphereColor('#3b82f6')
-            .atmosphereAltitude(0.15);
+            .atmosphereAltitude(0.2);
 
-        // Başlangıç Noktası (Amasya)
-        globe.pointOfView({ lat: 38.9637, lng: 35.2433, altitude: 2.2 });
+        // Kürenin tamamını ve geniş coğrafyayı görebilmek için uzaklaştırılmış (altitude: 3.2) başlangıç açısı
+        globe.pointOfView({ lat: 38.9637, lng: 35.2433, altitude: 3.2 });
 
         function toggleSpeedMenu() {
             document.getElementById('speed-menu').classList.toggle('show');
@@ -709,7 +708,7 @@
             if (vehicleAnimationTimer) clearInterval(vehicleAnimationTimer);
             activeWorkId = null;
             globe.pointsData([]).arcsData([]).customLayerData([]);
-            globe.pointOfView({ lat: 38.9637, lng: 35.2433, altitude: 2.2 }, 1000);
+            globe.pointOfView({ lat: 38.9637, lng: 35.2433, altitude: 3.2 }, 1000);
             closeGlobePopup();
             renderApp();
         }
@@ -725,7 +724,6 @@
             const work = classicalWorks.find(w => w.id === workId);
             if (!work) return;
 
-            // Küreye Pimler (Points) Ekleme
             const points = work.journey.map(stop => ({
                 lat: stop.lat,
                 lng: stop.lng,
@@ -736,7 +734,6 @@
                 image: stop.image
             }));
 
-            // Pimleri ve Merkez Amasya'yı ekle
             points.push({
                 lat: work.lat,
                 lng: work.lng,
@@ -757,10 +754,9 @@
                     document.getElementById('popupImg').src = d.image;
                     document.getElementById('popupQuote').innerText = `"${d.quote}"`;
                     document.getElementById('globePopup').style.display = 'block';
-                    globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 1.5 }, 1000);
+                    globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 2.0 }, 1000);
                 });
 
-            // Aralarındaki Çizgiler (Arcs)
             const arcs = [];
             for (let i = 0; i < work.journey.length - 1; i++) {
                 arcs.push({
@@ -779,14 +775,11 @@
                 .arcDashInitialGap(() => Math.random())
                 .arcDashAnimateTime(2000);
 
-            // Kamera odaklanma
-            globe.pointOfView({ lat: 25.0, lng: 55.0, altitude: 2.5 }, 1500);
+            globe.pointOfView({ lat: 25.0, lng: 55.0, altitude: 3.0 }, 1500);
 
-            // Hareketli Araç / Gemi Animasyonu
             startGlobeVehicleAnimation(work.journey);
         }
 
-        let animationSpeedMultiplier = 1;
         function startGlobeVehicleAnimation(journey) {
             if (vehicleAnimationTimer) clearInterval(vehicleAnimationTimer);
 
