@@ -263,16 +263,6 @@
             </div>
         </div>
 
-        <!-- Harita Modu Butonu -->
-        <div style="position: relative;" id="map-container">
-            <button class="pill-btn" onclick="toggleMapMenu()" id="map-mode-btn">🗺️ Harita Modu</button>
-            <div id="map-menu" class="dropdown-menu">
-                <button class="dropdown-option" onclick="setMapStyle('standard')">🗺️ Standart Atlas</button>
-                <button class="dropdown-option" onclick="setMapStyle('topo')">⛰️ Kabartılı Topo</button>
-                <button class="dropdown-option" onclick="setMapStyle('satellite')">🛰️ Uydu Görünümü</button>
-            </div>
-        </div>
-
         <!-- Dil Seçici Butonu -->
         <div style="position: relative;" id="lang-container">
             <button class="pill-btn" onclick="toggleLangMenu()">🌐 Dil / Lang</button>
@@ -308,16 +298,16 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const uiTexts = {
-            tr: { title: "İskendernâme Atlası", mapMode: "🗺️ Harita Modu", fontStyle: "🔤 Yazı Stili", fontTitle: "Yazı Tipi", weightTitle: "Kalınlık" },
-            en: { title: "İskendernâme Atlas", mapMode: "🗺️ Map Style", fontStyle: "🔤 Font Style", fontTitle: "Font Family", weightTitle: "Weight" },
-            fr: { title: "Atlas d'İskendernâme", mapMode: "🗺️ Style de Carte", fontStyle: "🔤 Style de Police", fontTitle: "Police", weightTitle: "Épaisseur" },
-            ar: { title: "أطلس إسكندرنامه", mapMode: "🗺️ نمط الخريطة", fontStyle: "🔤 نمط الخط", fontTitle: "نوع الخط", weightTitle: "السمك" },
-            fa: { title: "اتلس اسکندرنامه", mapMode: "🗺️ حالت نقشه", fontStyle: "🔤 سبک قلم", fontTitle: "نوع قلم", weightTitle: "ضخامت" },
-            zh: { title: "亚历山大史诗地图集", mapMode: "🗺️ 地图样式", fontStyle: "🔤 字体样式", fontTitle: "字体", weightTitle: "字重" },
-            de: { title: "İskendernâme Atlas", mapMode: "🗺️ Kartenstil", fontStyle: "🔤 Schriftstil", fontTitle: "Schriftart", weightTitle: "Stärke" },
-            el: { title: "Άτλας Ισκεντερνάμε", mapMode: "🗺️ Στυλ Χάρτη", fontStyle: "🔤 Στυλ Γραμματοσειράς", fontTitle: "Γραμματοσειρά", weightTitle: "Πάχος" },
-            ja: { title: "イスカンダルナメ アトラス", mapMode: "🗺️ マップスタイル", fontStyle: "🔤 フォントスタイル", fontTitle: "フォント", weightTitle: "太さ" },
-            hi: { title: "इस्केंदरनामे एटलस", mapMode: "🗺️ मानचित्र शैली", fontStyle: "🔤 फ़ॉन्ट शैली", fontTitle: "फ़ॉन्ट", weightTitle: "मोटाई" }
+            tr: { title: "İskendernâme Atlası", fontStyle: "🔤 Yazı Stili", fontTitle: "Yazı Tipi", weightTitle: "Kalınlık" },
+            en: { title: "İskendernâme Atlas", fontStyle: "🔤 Font Style", fontTitle: "Font Family", weightTitle: "Weight" },
+            fr: { title: "Atlas d'İskendernâme", fontStyle: "🔤 Style de Police", fontTitle: "Police", weightTitle: "Épaisseur" },
+            ar: { title: "أطلس إسكندرنامه", fontStyle: "🔤 نمط الخط", fontTitle: "نوع الخط", weightTitle: "السمك" },
+            fa: { title: "اتلس اسکندرنامه", fontStyle: "🔤 سبک قلم", fontTitle: "نوع قلم", weightTitle: "ضخامت" },
+            zh: { title: "亚历山大史诗地图集", fontStyle: "🔤 字体样式", fontTitle: "字体", weightTitle: "字重" },
+            de: { title: "İskendernâme Atlas", fontStyle: "🔤 Schriftstil", fontTitle: "Schriftart", weightTitle: "Stärke" },
+            el: { title: "Άτλας Ισκεντερνάμε", fontStyle: "🔤 Στυλ Γραμματοσειράς", fontTitle: "Γραμματοσειρά", weightTitle: "Πάχος" },
+            ja: { title: "イスカンダルナメ アトラス", fontStyle: "🔤 フォントスタイル", fontTitle: "フォント", weightTitle: "太さ" },
+            hi: { title: "इस्केंदरनामे एटलस", fontStyle: "🔤 फ़ॉन्ट शैली", fontTitle: "फ़ॉन्ट", weightTitle: "मोटाई" }
         };
 
         let currentLang = 'tr';
@@ -383,33 +373,20 @@
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        const layers = {
-            standard: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }),
-            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM' }),
-            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: 'Tiles &copy; Esri' })
-        };
-
-        let currentLayer = layers.standard.addTo(map);
+        // Standart Harita Katmanı (Sabit)
+        let currentLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
         let activeMarkers = [];
         let activePolyline = null;
         let activeWorkId = null;
 
         function toggleFontMenu() {
             document.getElementById('font-style-menu').classList.toggle('show');
-            document.getElementById('map-menu').classList.remove('show');
-            document.getElementById('lang-menu').classList.remove('show');
-        }
-
-        function toggleMapMenu() {
-            document.getElementById('map-menu').classList.toggle('show');
-            document.getElementById('font-style-menu').classList.remove('show');
             document.getElementById('lang-menu').classList.remove('show');
         }
 
         function toggleLangMenu() {
             document.getElementById('lang-menu').classList.toggle('show');
             document.getElementById('font-style-menu').classList.remove('show');
-            document.getElementById('map-menu').classList.remove('show');
         }
 
         window.addEventListener('click', function(e) {
@@ -419,21 +396,12 @@
             if (!document.getElementById('lang-container').contains(e.target)) {
                 document.getElementById('lang-menu').classList.remove('show');
             }
-            if (!document.getElementById('map-container').contains(e.target)) {
-                document.getElementById('map-menu').classList.remove('show');
-            }
         });
 
         function setLanguage(lang) {
             currentLang = lang;
             document.getElementById('lang-menu').classList.remove('show');
             renderApp();
-        }
-
-        function setMapStyle(styleKey) {
-            map.removeLayer(currentLayer);
-            currentLayer = layers[styleKey].addTo(map);
-            document.getElementById('map-menu').classList.remove('show');
         }
 
         function setFontFamily(fontKey, btnElement) {
@@ -518,7 +486,6 @@
         function renderApp() {
             document.getElementById('ui-title').innerText = uiTexts[currentLang].title;
             document.getElementById('font-style-btn').innerText = uiTexts[currentLang].fontStyle;
-            document.getElementById('map-mode-btn').innerText = uiTexts[currentLang].mapMode;
             document.getElementById('lbl-font').innerText = uiTexts[currentLang].fontTitle;
             document.getElementById('lbl-weight').innerText = uiTexts[currentLang].weightTitle;
 
@@ -569,7 +536,7 @@
                         <h4>${item.title}</h4>
                         <em>Yazar: ${item.author}</em>
                         <img src="${item.image}" alt="${item.title}">
-                        <p><strong>Yazıldığı Merkez:</strong> ${item.center}<br><em>(Rotayı görmek için karta veya pime tıklayın)</em></p>
+                        <p><strong>Yazıldığı Merkez:</strong> ${item.center}<br><em>(35 Duraklı rotayı görmek için karta veya pime tıklayın)</em></p>
                     `);
 
                     marker.on('click', function() {
