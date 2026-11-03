@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İskendernâme - Klasik Türk Edebiyatı 3D Küre Atlası</title>
+    <title>İskendernâme - Klasik Türk Edebiyatı Coğrafi Atlası</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Three.js ve Globe.gl 3D Küre Kütüphaneleri -->
-    <script src="https://unpkg.com/three"></script>
-    <script src="https://unpkg.com/globe.gl"></script>
+    <!-- Leaflet Harita Kütüphanesi CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
-            --bg-color: #050508;
+            --bg-color: #0b0b0d;
             --panel-bg: rgba(28, 28, 30, 0.88);
             --card-bg: rgba(44, 44, 46, 0.65);
             --card-hover: rgba(58, 58, 60, 0.9);
@@ -122,70 +121,36 @@
             font-weight: 500;
         }
 
-        /* 3D Küre ve Yıldızlı Uzay Alanı */
-        #globeMap { 
-            flex-grow: 1; 
-            height: 100%; 
-            width: 100%; 
-            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #030712 100%) !important;
-            position: relative; 
-            overflow: hidden;
-        }
+        /* Harita Alanı */
+        #map { flex-grow: 1; height: 100%; width: 100%; background-color: #0b0b0d; position: relative; }
 
-        /* Yıldız Efekti Deseni */
-        #globeMap::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(white 1px, transparent 0),
-                radial-gradient(rgba(255,255,255,0.6) 1.5px, transparent 0),
-                radial-gradient(rgba(245,158,11,0.5) 2px, transparent 0);
-            background-size: 120px 120px, 200px 200px, 300px 300px;
-            background-position: 0 0, 40px 60px, 100px 150px;
-            opacity: 0.45;
-            pointer-events: none;
-            z-index: 400;
-        }
-
-        /* Özel HTML Kart / Popup Tasarımı */
-        .globe-popup {
-            background: rgba(28, 28, 30, 0.96);
-            backdrop-filter: blur(25px);
-            color: #fff;
-            padding: 14px;
-            border-radius: 16px;
+        /* Popup Tasarımı */
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background: rgba(28, 28, 30, 0.96) !important;
+            backdrop-filter: blur(25px) !important;
+            color: #fff !important;
+            border-radius: 16px !important;
             border: 1px solid var(--border-glass);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-            width: 260px;
-            font-family: var(--app-font);
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-            display: none;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7) !important;
         }
-        .globe-popup img { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; margin: 8px 0; border: 1px solid var(--border-glass); }
-        .globe-popup h4 { color: var(--accent-color); font-size: 0.95rem; margin-bottom: 4px; font-family: 'Playfair Display', serif; }
-        .globe-popup p { font-size: 0.78rem; color: #d4d4d8; font-style: italic; line-height: 1.4; }
-        .globe-popup-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,255,255,0.15);
-            color: #fff;
-            border: none;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            cursor: pointer;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .leaflet-popup-content { width: 260px !important; line-height: 1.5; }
+        .leaflet-popup-content img { width: 100%; height: 130px; object-fit: cover; border-radius: 10px; margin: 8px 0; display: block; border: 1px solid var(--border-glass); }
+        .leaflet-popup-content h4 { color: var(--accent-color); font-size: 0.95rem; margin-bottom: 4px; font-family: 'Playfair Display', serif; }
+        .leaflet-popup-content p { font-size: 0.8rem; color: #d4d4d8; font-style: italic; margin-top: 6px; }
+        .leaflet-container a.leaflet-popup-close-button {
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #fff !important;
+            border-radius: 50% !important;
+            width: 24px !important;
+            height: 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            top: 12px !important;
+            right: 12px !important;
+            font-size: 14px !important;
         }
-        .globe-popup-close:hover { background: rgba(245, 158, 11, 0.8); }
+        .leaflet-container a.leaflet-popup-close-button:hover { background: rgba(245, 158, 11, 0.8) !important; }
 
         /* Sağ Üst Kontroller */
         .top-controls { position: absolute; top: 20px; right: 24px; z-index: 2000; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
@@ -266,7 +231,7 @@
         @media (max-width: 768px) {
             body { flex-direction: column; }
             #sidebar { width: 100%; min-width: 100%; height: 45vh; }
-            #globeMap { height: 55vh; }
+            #map { height: 55vh; }
         }
     </style>
 </head>
@@ -323,7 +288,7 @@
         </div>
 
         <!-- Sıfırlama Butonu -->
-        <button class="pill-btn" onclick="resetGlobeToInitial()" title="İlk Konuma Dön">🔄 Sıfırla</button>
+        <button class="pill-btn" onclick="resetMapToInitial()" title="İlk Konuma Dön">🔄 Sıfırla</button>
     </div>
 
     <div id="sidebar">
@@ -333,16 +298,11 @@
         <div class="work-list" id="workList"></div>
     </div>
 
-    <!-- 3D Küre Alanı -->
-    <div id="globeMap">
-        <div id="globePopup" class="globe-popup">
-            <button class="globe-popup-close" onclick="closeGlobePopup()">✕</button>
-            <h4 id="popupTitle"></h4>
-            <img id="popupImg" src="" alt="">
-            <p id="popupQuote"></p>
-        </div>
-    </div>
+    <!-- Harita Alanı -->
+    <div id="map"></div>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const translations = {
             tr: {
@@ -350,7 +310,7 @@
                 fontStyle: "🔤 Yazı Stili",
                 fontTitle: "Yazı Tipi",
                 weightTitle: "Kalınlık",
-                activeRoute: "Kürede Aktif (35 Durak & Animasyon)",
+                activeRoute: "Rotada Aktif (35 Durak & Animasyon)",
                 reset: "Sıfırla",
                 center: "Merkez",
                 period: "Dönem",
@@ -358,7 +318,7 @@
                 lang: "Dili",
                 purpose: "Yazılış Amacı",
                 subject: "Genel Konu",
-                initialPopup: "Yazıldığı Merkez: Amasya<br><em>(35 Duraklı 3D küre rotasını başlatmak için tıklayın)</em>",
+                initialPopup: "Yazıldığı Merkez: Amasya<br><em>(35 Duraklı araba/gemi rotasını başlatmak için tıklayın)</em>",
                 workTitle: "İskendernâme",
                 author: "Ahmedî (Taceddin İbrahim b. Hızır)",
                 workPeriod: "14. Yüzyıl Sonu – 15. Yüzyıl Başı",
@@ -369,11 +329,11 @@
                 workSubject: "Büyük İskender’in efsanevi ve tarihi hayatı, Doğu'dan Batı'ya seferleri, felsefi tartışmaları ve dünya coğrafyası."
             },
             en: {
-                title: "İskendernâme Globe Atlas",
+                title: "İskendernâme Atlas",
                 fontStyle: "🔤 Font Style",
                 fontTitle: "Font Family",
                 weightTitle: "Weight",
-                activeRoute: "Active on Globe (35 Stops & Animation)",
+                activeRoute: "Active Route (35 Stops & Animation)",
                 reset: "Reset",
                 center: "Center",
                 period: "Period",
@@ -381,7 +341,7 @@
                 lang: "Language",
                 purpose: "Purpose",
                 subject: "Subject",
-                initialPopup: "Center: Amasya<br><em>(Click to start the 35-stop 3D globe route)</em>",
+                initialPopup: "Center: Amasya<br><em>(Click to start the 35-stop car/ship route)</em>",
                 workTitle: "İskendernâme",
                 author: "Ahmedî (Taceddin İbrahim b. Hızır)",
                 workPeriod: "Late 14th – Early 15th Century",
@@ -392,11 +352,11 @@
                 subject: "The legendary and historical life of Alexander the Great, his campaigns from East to West."
             },
             fr: {
-                title: "Atlas Globe d'İskendernâme",
+                title: "Atlas d'İskendernâme",
                 fontStyle: "🔤 Style de Police",
                 fontTitle: "Police",
                 weightTitle: "Épaisseur",
-                activeRoute: "Actif sur le Globe (35 Arrêts)",
+                activeRoute: "Route Active (35 Arrêts & Animation)",
                 reset: "Réinitialiser",
                 center: "Centre",
                 period: "Période",
@@ -404,7 +364,7 @@
                 lang: "Langue",
                 purpose: "Objectif",
                 subject: "Sujet",
-                initialPopup: "Centre : Amasya<br><em>(Cliquez pour lancer la route 3D)</em>",
+                initialPopup: "Centre : Amasya<br><em>(Cliquez pour lancer la route de 35 arrêts)</em>",
                 workTitle: "İskendernâme",
                 author: "Ahmedî (Taceddin İbrahim b. Hızır)",
                 workPeriod: "Fin XIVe – Début XVe Siècle",
@@ -415,11 +375,11 @@
                 subject: "La vie légendaire et historique d'Alexandre le Grand."
             },
             ar: {
-                title: "أطلس كرة إسكندرنامه",
+                title: "أطلس إسكندرنامه",
                 fontStyle: "🔤 نمط الخط",
                 fontTitle: "نوع الخط",
                 weightTitle: "السمك",
-                activeRoute: "نشط على الكرة (35 محطة)",
+                activeRoute: "مسار نشط (35 محطة وحركة)",
                 reset: "إعادة ضبط",
                 center: "المركز",
                 period: "الفترة",
@@ -427,7 +387,7 @@
                 lang: "اللغة",
                 purpose: "الغرض من التأليف",
                 subject: "الموضوع العام",
-                initialPopup: "مركز الكتابة: أماسيا<br><em>(انقر لبدء مسار الكرة الثلاثية الأبعاد)</em>",
+                initialPopup: "مركز الكتابة: أماسيا<br><em>(انقر لبدء مسار الرحلة)</em>",
                 workTitle: "إسكندرنامه",
                 author: "أحمدي (تاج الدين إبراهيم بن خضر)",
                 workPeriod: "أواخر القرن 14 - أوائل القرن 15",
@@ -438,11 +398,11 @@
                 subject: "الحياة الأسطورية والتاريخية للإسكندر الأكبر."
             },
             fa: {
-                title: "اتلس کره اسکندرنامه",
+                title: "اتلس اسکندرنامه",
                 fontStyle: "🔤 سبک قلم",
                 fontTitle: "نوع قلم",
                 weightTitle: "ضخامت",
-                activeRoute: "فعال روی کره (۳۵ ایستگاه)",
+                activeRoute: "مسیر فعال (۳۵ ایستگاه و انیمیشن)",
                 reset: "بازنشانی",
                 center: "مرکز",
                 period: "دوره",
@@ -461,11 +421,11 @@
                 subject: "زندگی اسطوره‌ای و تاریخی اسکندر مقدونی."
             },
             zh: {
-                title: "亚历山大史诗3D地球仪",
+                title: "亚历山大史诗地图集",
                 fontStyle: "🔤 字体样式",
                 fontTitle: "字体",
                 weightTitle: "字重",
-                activeRoute: "地球仪激活（35站及动画）",
+                activeRoute: "活动路线（35站及动画）",
                 reset: "重置",
                 center: "中心",
                 period: "时期",
@@ -473,7 +433,7 @@
                 lang: "语言",
                 purpose: "写作目的",
                 subject: "主题",
-                initialPopup: "写作中心：阿马西亚<br><em>（点击开始3D地球仪路线）</em>",
+                initialPopup: "写作中心：阿马西亚<br><em>（点击开始35站车船路线）</em>",
                 workTitle: "亚历山大史诗 (İskendernâme)",
                 author: "艾哈迈迪 (Ahmedî)",
                 workPeriod: "14世纪末 - 15世纪初",
@@ -484,11 +444,11 @@
                 subject: "亚历山大大帝的传奇与历史生平。"
             },
             de: {
-                title: "İskendernâme Globus Atlas",
+                title: "İskendernâme Atlas",
                 fontStyle: "🔤 Schriftstil",
                 fontTitle: "Schriftart",
                 weightTitle: "Stärke",
-                activeRoute: "Aktiv auf Globus (35 Stationen)",
+                activeRoute: "Aktive Route (35 Stationen & Animation)",
                 reset: "Zurücksetzen",
                 center: "Zentrum",
                 period: "Epoche",
@@ -496,7 +456,7 @@
                 lang: "Sprache",
                 purpose: "Zweck",
                 subject: "Thema",
-                initialPopup: "Zentrum: Amasya<br><em>(Klicken, um die 3D-Globus-Route zu starten)</em>",
+                initialPopup: "Zentrum: Amasya<br><em>(Klicken, um die Route zu starten)</em>",
                 workTitle: "İskendernâme",
                 author: "Ahmedî",
                 workPeriod: "Spätes 14. – frühes 15. Jahrhundert",
@@ -507,11 +467,11 @@
                 subject: "Das legendäre Leben Alexander des Großen."
             },
             el: {
-                title: "Άτλας Υδρόγειου Ισκεντερνάμε",
+                title: "Άτλας Ισκεντερνάμε",
                 fontStyle: "🔤 Στυλ Γραμματοσειράς",
                 fontTitle: "Γραμματοσειρά",
                 weightTitle: "Πάχος",
-                activeRoute: "Ενεργό στην Υδρόγειο (35 Στάσεις)",
+                activeRoute: "Ενεργή Διαδρομή (35 Στάσεις)",
                 reset: "Επαναφορά",
                 center: "Κέντρο",
                 period: "Περίοδος",
@@ -530,11 +490,11 @@
                 subject: "Η ζωή του Μεγάλου Αλεξάνδρου."
             },
             ja: {
-                title: "イスカンダルナメ 3D地球儀アトラス",
+                title: "イスカンダルナメ アトラス",
                 fontStyle: "🔤 フォントスタイル",
                 fontTitle: "フォント",
                 weightTitle: "太さ",
-                activeRoute: "地球儀上でアクティブ (35駅)",
+                activeRoute: "アクティブルート (35駅 & アニメ)",
                 reset: "リセット",
                 center: "中心地",
                 period: "時代",
@@ -542,7 +502,7 @@
                 lang: "言語",
                 purpose: "執筆目的",
                 subject: "主題",
-                initialPopup: "執筆地: アマシア<br><em>(クリックして3D地球儀ルートを開始)</em>",
+                initialPopup: "執筆地: アマシア<br><em>(クリックしてルートを開始)</em>",
                 workTitle: "イスカンダルナメ",
                 author: "アフメディー",
                 workPeriod: "14世紀末〜15世紀初頭",
@@ -553,11 +513,11 @@
                 subject: "アレクサンドロス大王の伝説的生涯。"
             },
             hi: {
-                title: "इस्केंदरनामे ग्लोब एटलस",
+                title: "इस्केंदरनामे एटलस",
                 fontStyle: "🔤 फ़ॉन्ट शैली",
                 fontTitle: "फ़ॉन्ट",
                 weightTitle: "मोटाई",
-                activeRoute: "ग्लोब पर सक्रिय (35 पड़ाव)",
+                activeRoute: "सक्रिय मार्ग (35 पड़ाव)",
                 reset: "रीसेट",
                 center: "केंद्र",
                 period: "काल",
@@ -568,310 +528,4 @@
                 initialPopup: "केंद्र: अमास्या<br><em>(यात्रा शुरू करने के लिए क्लिक करें)</em>",
                 workTitle: "इस्केंदरनामे",
                 author: "अहमदी",
-                workPeriod: "14वीं - 15वीं शताब्दी",
-                workCenter: "अमास्या",
-                workForm: "मसनवी (ऐतिहासिक और दार्शनिक)",
-                workLang: "पुरानी अनाटोलियन तुर्की",
-                workPurpose: "शासकों को शासन और न्याय की शिक्षा देना।",
-                subject: "सिकंदर महान का जीवन और अभियान।"
-            }
-        };
-
-        let currentLang = 'tr';
-        let animationSpeedMultiplier = 1;
-        let vehicleAnimationTimer = null;
-
-        const classicalWorks = [
-            {
-                id: 1,
-                title: "İskendernâme",
-                author: "Ahmedî (Taceddin İbrahim b. Hızır)",
-                lat: 40.6549, lng: 35.8356,
-                image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800",
-                journey: [
-                    { step: 1, title: "Rûm", lat: 39.9334, lng: 32.8597, quote: "Rûm diyarına varıp Anadolu'nun ulu kalelerini ve şehirlerini fetheyledi.", image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800", transport: "car" },
-                    { step: 2, title: "Fırat Nehri", lat: 37.1111, lng: 38.2783, quote: "Fırat suyunun kenarına gelip ordusuyla nehrin akışını temaşa kıldı.", image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800", transport: "car" },
-                    { step: 3, title: "Medâyin", lat: 33.0900, lng: 44.5800, quote: "Medâyin şehrine ulaşıp eski sultanların saraylarında ibretle gezindi.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800", transport: "car" },
-                    { step: 4, title: "İran", lat: 32.4279, lng: 53.6880, quote: "İran mülküne girip Dara'nın tahtını devirdi ve adaleti tesis eyledi.", image: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=800", transport: "car" },
-                    { step: 5, title: "Zâbilistân", lat: 31.6289, lng: 65.7372, quote: "Zâbilistân dağlarını aşıp pehlivanlar diyarından selamla geçti.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", transport: "car" },
-                    { step: 6, title: "Sîstân", lat: 30.9583, lng: 61.5333, quote: "Sîstân vilayetinin çöllerinde konaklayıp gazileriyle istişare kıldı.", image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800", transport: "car" },
-                    { step: 7, title: "Hint Ülkesi / Hindistan", lat: 28.6139, lng: 77.2090, quote: "Hindistan'ın acayip ve garip illerine varıp filleri ve ejderhaları müşahede etti.", image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800", transport: "car" },
-                    { step: 8, title: "Sind", lat: 25.3960, lng: 68.3578, quote: "Sind nehrinin deryaya döküldüğü ulu sahilde donanma kurdu.", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", transport: "ship" },
-                    { step: 9, title: "Râyic Adası", lat: 15.0000, lng: 75.0000, quote: "Râyic adasının ıssız kumsallarına çıkarak deniz ötesi sırları aradı.", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800", transport: "ship" },
-                    { step: 10, title: "Râminî Adası", lat: 12.0000, lng: 80.0000, quote: "Râminî adasında acayip mahluklar ve efsanevi hazinelerle karşılaştı.", image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800", transport: "ship" },
-                    { step: 11, title: "Vâkvâk Adası", lat: 0.0000, lng: 105.0000, quote: "Vâkvâk adasında insan meyvesi veren o meşhur acayip ağaçları gördü.", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800", transport: "ship" },
-                    { step: 12, title: "Betân / Benan Adası", lat: 5.0000, lng: 95.0000, quote: "Betân adasının sarp kayalıkları arasında zorlu bir deniz seferi yaptı.", image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800", transport: "ship" },
-                    { step: 13, title: "Etvârib / Etvâriyye Adası", lat: 8.0000, lng: 73.0000, quote: "Etvârib adasında deryanın dalgalarıyla boğuşup yönünü tayin eyledi.", image: "https://images.unsplash.com/photo-1568322445389-f64ac25256e6?w=800", transport: "ship" },
-                    { step: 14, title: "Câbe / Cava Adası", lat: -7.5361, lng: 112.2384, quote: "Câbe adasının baharat kokulu ormanlarında çadır kurdu.", image: "https://images.unsplash.com/photo-1599839575945-a9e330adc30d?w=800", transport: "ship" },
-                    { step: 15, title: "Lengâvûs / Lenkâvûs Adası", lat: 3.1390, lng: 101.6869, quote: "Lengâvûs adasında denizin derinliklerinden gelen gizli sesleri dinledi.", image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800", transport: "ship" },
-                    { step: 16, title: "Tinnîn Adası", lat: 10.0000, lng: 85.0000, quote: "Tinnîn adasında ejderha misali büyük yaratıkların menziline uğradı.", image: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=800", transport: "ship" },
-                    { step: 17, title: "Selâmıt / Selamit Adası", lat: 18.0000, lng: 57.0000, quote: "Selâmıt adasında selametle karaya ayak basıp şükür namazı kıldı.", image: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800", transport: "ship" },
-                    { step: 18, title: "Elmas Vadisi", lat: 35.0000, lng: 70.0000, quote: "Elmas vadisinde kartalların yardımıyla devasa elmasları toplattı.", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800", transport: "car" },
-                    { step: 19, title: "Billur Köşk", lat: 38.0000, lng: 65.0000, quote: "Billur köşkün gümüş ve camdan yapılmış ihtişamına hayran kaldı.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800", transport: "car" },
-                    { step: 20, title: "Çin", lat: 39.9042, lng: 116.4074, quote: "Çin ülkesine varıp seddi aştı ve Doğu'nun kağanından haraç aldı.", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800", transport: "car" },
-                    { step: 21, title: "Kişmîr / Keşmir", lat: 33.7782, lng: 76.5762, quote: "Keşmir vadisinin yeşillikleri arasında dervişlerle sohbet eyledi.", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", transport: "car" },
-                    { step: 22, title: "Türk Ülkesi", lat: 45.0000, lng: 70.0000, quote: "Türk ellerine varıp Alp erlerin mertliğini ve yaylaklarını müşahede kıldı.", image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800", transport: "car" },
-                    { step: 23, title: "Tatargar", lat: 48.0000, lng: 80.0000, quote: "Tatargar vilayetinin hudut boylarında karargah kurdu.", image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800", transport: "car" },
-                    { step: 24, title: "Rus Ülkesi", lat: 55.7558, lng: 37.6173, quote: "Rus diyarının soğuk ve karlı ormanlarında kuzey seferini tamamladı.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", transport: "car" },
-                    { step: 25, title: "Mâzenderân", lat: 36.5656, lng: 53.0586, quote: "Mâzenderân diyarında periler ve devler efsanesine konu olan dağları gezdi.", image: "https://images.unsplash.com/photo-1599839575945-a9e330adc30d?w=800", transport: "car" },
-                    { step: 26, title: "Horasan", lat: 36.2970, lng: 59.6062, quote: "Horasan ilinin irfan meclislerinde alimlerle ilmi münazara kıldı.", image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800", transport: "car" },
-                    { step: 27, title: "Mısır", lat: 30.0444, lng: 31.2357, quote: "Mısır'a varıp Nil nehrinin bereketli topraklarında adaletle hükmetti.", image: "https://images.unsplash.com/photo-1568322445389-f64ac25256e6?w=800", transport: "car" },
-                    { step: 28, title: "Nil Nehri", lat: 30.1000, lng: 31.3000, quote: "Nil nehrinin taşkın sularını ve suyunun gizemini ulemaya sordu.", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800", transport: "ship" },
-                    { step: 29, title: "İskenderiyye", lat: 31.2001, lng: 29.9187, quote: "Kendi adıyla anılan İskenderiye şehrini kurup fener inşa ettirdi.", image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800", transport: "ship" },
-                    { step: 30, title: "Mağrib", lat: 31.7917, lng: -7.0926, quote: "Mağrib diyarına, güneşin battığı en uzak batı sınırlarına kadar ulaştı.", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800", transport: "car" },
-                    { step: 31, title: "Bağdat", lat: 33.3152, lng: 44.3661, quote: "Bağdat şehrinde Dicle kıyısında büyük bir medeniyet merkezi kurdu.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800", transport: "car" },
-                    { step: 32, title: "Hicaz & Kâbe", lat: 21.3891, lng: 39.8579, quote: "Hicaz topraklarına varıp Kâbe-i Muazzama'yı büyük bir tevazu ile ziyaret etti.", image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800", transport: "car" },
-                    { step: 33, title: "Mescid-i Aksa / Kudüs", lat: 31.7767, lng: 35.2345, quote: "Kudüs'e varıp Mescid-i Aksa'da ibadet edip hutbe okuttu.", image: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800", transport: "car" },
-                    { step: 34, title: "Karanlıklar Diyarı (Zulmet)", lat: 65.0000, lng: 40.0000, quote: "Zulümat diyarına (Karanlıklar ülkesi) girip Âb-ı Hayat (ebedilik suyu) aradı.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", transport: "car" },
-                    { step: 35, title: "Cadılar Diyarı", lat: 60.0000, lng: 50.0000, quote: "Cadılar ve sihirbazlar diyarından hikmetle ve selametle geçti.", image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800", transport: "car" }
-                ]
-            }
-        ];
-
-        let activeWorkId = null;
-
-        // 3D Küre Başlatma (Genişletilmiş perspektif ve gece dünya dokusu)
-        const container = document.getElementById('globeMap');
-        const globe = Globe()
-            (container)
-            .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
-            .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-            .backgroundColor('rgba(0,0,0,0)')
-            .showAtmosphere(true)
-            .atmosphereColor('#3b82f6')
-            .atmosphereAltitude(0.2);
-
-        // Kürenin tamamını ve geniş coğrafyayı görebilmek için uzaklaştırılmış (altitude: 3.2) başlangıç açısı
-        globe.pointOfView({ lat: 38.9637, lng: 35.2433, altitude: 3.2 });
-
-        function toggleSpeedMenu() {
-            document.getElementById('speed-menu').classList.toggle('show');
-            document.getElementById('font-style-menu').classList.remove('show');
-            document.getElementById('lang-menu').classList.remove('show');
-        }
-
-        function toggleFontMenu() {
-            document.getElementById('font-style-menu').classList.toggle('show');
-            document.getElementById('speed-menu').classList.remove('show');
-            document.getElementById('lang-menu').classList.remove('show');
-        }
-
-        function toggleLangMenu() {
-            document.getElementById('lang-menu').classList.toggle('show');
-            document.getElementById('speed-menu').classList.remove('show');
-            document.getElementById('font-style-menu').classList.remove('show');
-        }
-
-        window.addEventListener('click', function(e) {
-            if (!document.getElementById('speed-container').contains(e.target)) {
-                document.getElementById('speed-menu').classList.remove('show');
-            }
-            if (!document.getElementById('font-container').contains(e.target)) {
-                document.getElementById('font-style-menu').classList.remove('show');
-            }
-            if (!document.getElementById('lang-container').contains(e.target)) {
-                document.getElementById('lang-menu').classList.remove('show');
-            }
-        });
-
-        function setSpeed(multiplier, labelText, btnElement) {
-            animationSpeedMultiplier = multiplier;
-            document.getElementById('speed-btn').innerText = `⚡ Hız: ${labelText}`;
-            document.querySelectorAll('.speed-opt').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-            document.getElementById('speed-menu').classList.remove('show');
-        }
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            document.getElementById('lang-menu').classList.remove('show');
-            renderApp();
-        }
-
-        function setFontFamily(fontKey, btnElement) {
-            let fontValue = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-            if (fontKey === 'roboto') fontValue = '"Roboto", sans-serif';
-            if (fontKey === 'playfair') fontValue = '"Playfair Display", serif';
-
-            document.documentElement.style.setProperty('--app-font', fontValue);
-            document.querySelectorAll('.font-opt').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-        }
-
-        function setFontWeight(weightValue, btnElement) {
-            document.documentElement.style.setProperty('--app-weight', weightValue);
-            document.querySelectorAll('.weight-opt').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-        }
-
-        function resetGlobeToInitial() {
-            if (vehicleAnimationTimer) clearInterval(vehicleAnimationTimer);
-            activeWorkId = null;
-            globe.pointsData([]).arcsData([]).customLayerData([]);
-            globe.pointOfView({ lat: 38.9637, lng: 35.2433, altitude: 3.2 }, 1000);
-            closeGlobePopup();
-            renderApp();
-        }
-
-        function closeGlobePopup() {
-            document.getElementById('globePopup').style.display = 'none';
-        }
-
-        function selectWorkJourney(workId) {
-            activeWorkId = workId;
-            renderApp();
-
-            const work = classicalWorks.find(w => w.id === workId);
-            if (!work) return;
-
-            const points = work.journey.map(stop => ({
-                lat: stop.lat,
-                lng: stop.lng,
-                size: 0.8,
-                color: '#f59e0b',
-                title: `Pim ${stop.step}: ${stop.title}`,
-                quote: stop.quote,
-                image: stop.image
-            }));
-
-            points.push({
-                lat: work.lat,
-                lng: work.lng,
-                size: 1.2,
-                color: '#3b82f6',
-                title: work.title,
-                quote: work.author,
-                image: work.image
-            });
-
-            globe.pointsData(points)
-                .pointAltitude(0.02)
-                .pointColor('color')
-                .pointRadius('size')
-                .pointLabel(d => d.title)
-                .onPointClick(d => {
-                    document.getElementById('popupTitle').innerText = d.title;
-                    document.getElementById('popupImg').src = d.image;
-                    document.getElementById('popupQuote').innerText = `"${d.quote}"`;
-                    document.getElementById('globePopup').style.display = 'block';
-                    globe.pointOfView({ lat: d.lat, lng: d.lng, altitude: 2.0 }, 1000);
-                });
-
-            const arcs = [];
-            for (let i = 0; i < work.journey.length - 1; i++) {
-                arcs.push({
-                    startLat: work.journey[i].lat,
-                    startLng: work.journey[i].lng,
-                    endLat: work.journey[i+1].lat,
-                    endLng: work.journey[i+1].lng,
-                    color: ['#f59e0b', '#fbbf24']
-                });
-            }
-
-            globe.arcsData(arcs)
-                .arcColor('color')
-                .arcDashLength(0.4)
-                .arcDashGap(0.2)
-                .arcDashInitialGap(() => Math.random())
-                .arcDashAnimateTime(2000);
-
-            globe.pointOfView({ lat: 25.0, lng: 55.0, altitude: 3.0 }, 1500);
-
-            startGlobeVehicleAnimation(work.journey);
-        }
-
-        function startGlobeVehicleAnimation(journey) {
-            if (vehicleAnimationTimer) clearInterval(vehicleAnimationTimer);
-
-            let segment = 0;
-            let progress = 0;
-            const totalSteps = 50;
-
-            vehicleAnimationTimer = setInterval(() => {
-                if (segment >= journey.length - 1) {
-                    segment = 0;
-                }
-
-                let p1 = journey[segment];
-                let p2 = journey[segment + 1];
-
-                let curLat = p1.lat + (p2.lat - p1.lat) * (progress / totalSteps);
-                let curLng = p1.lng + (p2.lng - p1.lng) * (progress / totalSteps);
-
-                let transportEmoji = p2.transport === 'ship' ? '🚢' : '🚗';
-
-                globe.customLayerData([{
-                    lat: curLat,
-                    lng: curLng,
-                    emoji: transportEmoji
-                }])
-                .customThreeObject(d => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 64;
-                    canvas.height = 64;
-                    const ctx = canvas.getContext('2d');
-                    ctx.font = '40px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(d.emoji, 32, 32);
-
-                    const texture = new THREE.CanvasTexture(canvas);
-                    const material = new THREE.SpriteMaterial({ map: texture });
-                    const sprite = new THREE.Sprite(material);
-                    sprite.scale.set(10, 10, 1);
-                    return sprite;
-                });
-
-                progress++;
-                if (progress > totalSteps) {
-                    progress = 0;
-                    segment++;
-                }
-            }, 80 / animationSpeedMultiplier);
-        }
-
-        function renderApp() {
-            const t = translations[currentLang];
-
-            document.getElementById('ui-title').innerText = t.title;
-            document.getElementById('font-style-btn').innerText = t.fontStyle;
-            document.getElementById('lbl-font').innerText = t.fontTitle;
-            document.getElementById('lbl-weight').innerText = t.weightTitle;
-
-            const workListContainer = document.getElementById('workList');
-            workListContainer.innerHTML = '';
-
-            classicalWorks.forEach(function(item) {
-                const card = document.createElement('div');
-                card.className = `work-card ${activeWorkId === item.id ? 'highlight' : ''}`;
-                
-                let activeBadgeHtml = activeWorkId === item.id ? `<span class="active-badge">${t.activeRoute}</span>` : '';
-
-                card.innerHTML = `
-                    ${activeBadgeHtml}
-                    <h3>${t.workTitle}</h3>
-                    <div class="author">${t.author}</div>
-                    <img src="${item.image}" alt="${t.workTitle}">
-                    <div class="kunye-section">
-                        <div class="kunye-row"><span class="kunye-label">${t.period}:</span> ${t.workPeriod}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.center}:</span> ${t.workCenter}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.form}:</span> ${t.workForm}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.lang}:</span> ${t.workLang}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.purpose}:</span> ${t.workPurpose}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.subject}:</span> ${t.workSubject}</div>
-                    </div>
-                `;
-
-                card.addEventListener('click', function() {
-                    selectWorkJourney(item.id);
-                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                });
-
-                workListContainer.appendChild(card);
-            });
-        }
-
-        renderApp();
-    </script>
-</body>
-</html>
+                workPeriod: "14वीं - 15वीं शताब्दी
