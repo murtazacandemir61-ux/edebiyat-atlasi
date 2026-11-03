@@ -126,7 +126,6 @@
             flex-grow: 1; 
             height: 100%; 
             width: 100%; 
-            /* Arka plana uzay hissi veren parlayan yıldızlar ve derin mavi doku eklendi */
             background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #030712 100%) !important;
             position: relative; 
         }
@@ -610,7 +609,7 @@
             }
         ];
 
-        // Haritayı güvenli ve hatasız başlatma
+        // Haritayı güvenli ve hatasız başlatma (OpenStreetMap standart tabanı)
         const map = L.map('map', { 
             zoomControl: false,
             minZoom: 2,
@@ -619,11 +618,10 @@
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Şık, karanlık ve şehir/ülke detaylı CartoDB Dark Matter katmanı
-        let currentLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { 
+        // Hiçbir API anahtarı istemeyen, doğrudan yüklenen güvenli OpenStreetMap katmanı
+        let currentLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
             maxZoom: 19, 
-            subdomains: 'abcd',
-            attribution: '&copy; OpenStreetMap & CARTO' 
+            attribution: '&copy; OpenStreetMap' 
         }).addTo(map);
 
         let activeMarkers = [];
