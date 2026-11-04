@@ -1,865 +1,438 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İskendernâme - Klasik Türk Edebiyatı Coğrafi Atlası</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Leaflet Harita Kütüphanesi CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    <style>
-        :root {
-            --bg-color: #0b0b0d;
-            --panel-bg: rgba(28, 28, 30, 0.88);
-            --card-bg: rgba(44, 44, 46, 0.65);
-            --card-hover: rgba(58, 58, 60, 0.9);
-            --accent-color: #f59e0b; /* Apple Altın/Kehribar */
-            --text-primary: #f4f4f5;
-            --text-secondary: #a1a1aa;
-            --border-glass: rgba(255, 255, 255, 0.1);
-            --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --app-weight: 400;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: var(--app-font); 
-            font-weight: var(--app-weight);
-            background-color: var(--bg-color); 
-            color: var(--text-primary); 
-            display: flex; 
-            height: 100vh; 
-            width: 100vw;
-            overflow: hidden; 
-            position: relative; 
-        }
-        
-        iframe[src*="netlify"], #netlify-badge, .netlify-badge, a[href*="netlify.com"] { 
-            display: none !important; 
-            visibility: hidden !important; 
-            opacity: 0 !important; 
-            pointer-events: none !important; 
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İskendernâme - Klasik Türk Edebiyatı Coğrafi Atlası</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-color:#0b0b0d;--panel-bg:rgba(28,28,30,.88);--card-bg:rgba(44,44,46,.65);--card-hover:rgba(58,58,60,.9);--accent-color:#f59e0b;--cyan:#38e1ff;--text-primary:#f4f4f5;--text-secondary:#a1a1aa;--border-glass:rgba(255,255,255,.1);--app-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--app-weight:400}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--app-font);font-weight:var(--app-weight);background:var(--bg-color);color:var(--text-primary);display:flex;height:100vh;width:100vw;overflow:hidden;position:relative}
+iframe[src*="netlify"],#netlify-badge,.netlify-badge,a[href*="netlify.com"]{display:none!important}
 
-        /* Sol Panel */
-        #sidebar { 
-            width: 440px; 
-            min-width: 440px;
-            background: var(--panel-bg); 
-            backdrop-filter: blur(30px); 
-            -webkit-backdrop-filter: blur(30px);
-            border-right: 1px solid var(--border-glass); 
-            display: flex; 
-            flex-direction: column; 
-            z-index: 1000; 
-            box-shadow: 20px 0 50px rgba(0,0,0,0.6);
-        }
-        .sidebar-header { 
-            padding: 22px 24px; 
-            border-bottom: 1px solid var(--border-glass); 
-            background: rgba(28, 28, 30, 0.5); 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .sidebar-header h1 { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; font-family: 'Playfair Display', serif; }
-        
-        .work-list { overflow-y: auto; flex: 1; padding: 16px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; }
-        .work-list::-webkit-scrollbar { width: 6px; }
-        .work-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+#sidebar{width:440px;min-width:440px;background:var(--panel-bg);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-right:1px solid var(--border-glass);display:flex;flex-direction:column;z-index:1000;box-shadow:20px 0 50px rgba(0,0,0,.6)}
+.sidebar-header{padding:22px 24px;border-bottom:1px solid var(--border-glass);background:rgba(28,28,30,.5)}
+.sidebar-header h1{font-size:1.1rem;font-weight:600;letter-spacing:-.01em;font-family:'Playfair Display',serif}
+.work-list{overflow-y:auto;flex:1;padding:16px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+.work-card{background:var(--card-bg);backdrop-filter:blur(12px);border:1px solid var(--border-glass);border-radius:18px;padding:18px;margin-bottom:14px;cursor:pointer;transition:all .3s cubic-bezier(.25,1,.5,1);box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.work-card:hover,.work-card.highlight{background:var(--card-hover);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.45);border-color:rgba(245,158,11,.6)}
+.work-card h3{font-size:1.2rem;color:#fff;margin-bottom:4px;font-family:'Playfair Display',serif}
+.work-card .author{font-size:.9rem;color:var(--accent-color);font-style:italic;margin-bottom:10px}
+.work-card img{width:100%;height:140px;object-fit:cover;border-radius:12px;margin:8px 0 12px;display:block;border:1px solid var(--border-glass)}
+.kunye-section{background:rgba(0,0,0,.25);border-radius:10px;padding:10px 12px;margin-top:10px;border:1px solid rgba(255,255,255,.05)}
+.kunye-row{font-size:.8rem;color:#d4d4d8;margin-bottom:6px;line-height:1.4}
+.kunye-row:last-child{margin-bottom:0}
+.kunye-label{color:var(--accent-color);font-weight:600}
+.active-badge{background:rgba(245,158,11,.2);color:var(--accent-color);font-size:.72rem;padding:3px 8px;border-radius:6px;float:right;border:1px solid rgba(245,158,11,.4);font-weight:500}
 
-        /* Künye Kartı Tasarımı */
-        .work-card { 
-            background: var(--card-bg); 
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glass);
-            border-radius: 18px; 
-            padding: 18px; 
-            margin-bottom: 14px; 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-        }
-        .work-card:hover, .work-card.highlight { 
-            background: var(--card-hover); 
-            transform: translateY(-3px); 
-            box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-            border-color: rgba(245, 158, 11, 0.6);
-        }
-        .work-card h3 { font-size: 1.2rem; color: #fff; margin-bottom: 4px; font-family: 'Playfair Display', serif; }
-        .work-card .author { font-size: 0.9rem; color: var(--accent-color); font-style: italic; margin-bottom: 10px; }
-        .work-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 12px; margin: 8px 0 12px 0; display: block; border: 1px solid var(--border-glass); }
-        
-        .kunye-section {
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-top: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .kunye-row {
-            font-size: 0.8rem;
-            color: #d4d4d8;
-            margin-bottom: 6px;
-            line-height: 1.4;
-        }
-        .kunye-row:last-child { margin-bottom: 0; }
-        .kunye-label {
-            color: var(--accent-color);
-            font-weight: 600;
-        }
+/* Küre alanı */
+#stage{flex-grow:1;height:100%;position:relative;overflow:hidden;background:radial-gradient(ellipse at 55% 45%,#0c2250 0%,#06122e 50%,#02050f 100%)}
+#stars{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+#globe{position:absolute;inset:0;z-index:1}
+#globe canvas{outline:none}
 
-        .active-badge {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--accent-color);
-            font-size: 0.72rem;
-            padding: 3px 8px;
-            border-radius: 6px;
-            float: right;
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            font-weight: 500;
-        }
+/* Pimler */
+.pinw{width:0;height:0}
+.pin{position:absolute;left:-16px;top:-16px;width:32px;height:32px;pointer-events:auto;cursor:pointer;transition:opacity .25s;animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
+.pin.hid{opacity:0;pointer-events:none}
+.pin b{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(8,16,36,.9);border:2px solid var(--accent-color);color:var(--accent-color);font-size:12px;font-weight:700;box-shadow:0 0 14px rgba(245,158,11,.55),0 4px 14px rgba(0,0,0,.6);transition:transform .2s,background .2s}
+.pin:hover b,.pin.cur b{transform:scale(1.2);background:var(--accent-color);color:#0b0b0d}
+.pin.cur b{box-shadow:0 0 22px rgba(245,158,11,.95)}
+.pin.start b{width:42px;height:42px;font-size:18px;margin:-5px;animation:pulse 2s infinite}
+.pin i{position:absolute;top:36px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.78);color:var(--accent-color);border:1px solid rgba(245,158,11,.3);padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;font-style:normal;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+.pin:hover i,.pin.cur i,.zoomed .pin i{opacity:1}
+.pin:hover{z-index:10}
+@keyframes pop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.6)}50%{box-shadow:0 0 0 12px rgba(245,158,11,0)}}
 
-        /* Harita Alanı */
-        #map { flex-grow: 1; height: 100%; width: 100%; background-color: #0b0b0d; position: relative; }
+/* Bilgi kartı */
+#popup{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);width:290px;z-index:1500;display:none;background:rgba(10,18,40,.92);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);color:#fff;border-radius:16px;border:1px solid rgba(56,225,255,.3);box-shadow:0 15px 40px rgba(0,0,0,.7),0 0 30px rgba(56,225,255,.12);padding:14px}
+#popup.show{display:block;animation:fadeIn .25s ease}
+#popup h4{color:var(--accent-color);font-size:.95rem;margin-bottom:4px;font-family:'Playfair Display',serif;padding-right:26px}
+#popup img{width:100%;height:130px;object-fit:cover;border-radius:10px;margin:8px 0;display:block;border:1px solid var(--border-glass)}
+#popup p{font-size:.8rem;color:#d4d4d8;font-style:italic;line-height:1.5}
+#popup-close{position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:13px}
+#popup-close:hover{background:rgba(245,158,11,.8)}
 
-        /* Popup Tasarımı */
-        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-            background: rgba(28, 28, 30, 0.96) !important;
-            backdrop-filter: blur(25px) !important;
-            color: #fff !important;
-            border-radius: 16px !important;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.7) !important;
-        }
-        .leaflet-popup-content { width: 260px !important; line-height: 1.5; }
-        .leaflet-popup-content img { width: 100%; height: 130px; object-fit: cover; border-radius: 10px; margin: 8px 0; display: block; border: 1px solid var(--border-glass); }
-        .leaflet-popup-content h4 { color: var(--accent-color); font-size: 0.95rem; margin-bottom: 4px; font-family: 'Playfair Display', serif; }
-        .leaflet-popup-content p { font-size: 0.8rem; color: #d4d4d8; font-style: italic; margin-top: 6px; }
-        .leaflet-container a.leaflet-popup-close-button {
-            background: rgba(255, 255, 255, 0.15) !important;
-            color: #fff !important;
-            border-radius: 50% !important;
-            width: 24px !important;
-            height: 24px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            top: 12px !important;
-            right: 12px !important;
-            font-size: 14px !important;
-        }
-        .leaflet-container a.leaflet-popup-close-button:hover { background: rgba(245, 158, 11, 0.8) !important; }
-
-        /* Sağ Üst Kontroller */
-        .top-controls { position: absolute; top: 20px; right: 24px; z-index: 2000; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-        
-        .pill-btn { 
-            background: rgba(28, 28, 30, 0.88); 
-            backdrop-filter: blur(20px); 
-            color: var(--text-primary); 
-            border: 1px solid var(--border-glass); 
-            padding: 8px 16px; 
-            height: 42px; 
-            border-radius: 21px; 
-            cursor: pointer; 
-            font-size: 0.85rem; 
-            font-weight: 500;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 6px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4); 
-            transition: all 0.2s; 
-        }
-        .pill-btn:hover { transform: scale(1.04); background: rgba(58, 58, 60, 0.95); border-color: var(--accent-color); }
-        
-        .dropdown-menu { 
-            display: none; 
-            position: absolute; 
-            right: 0; 
-            top: 52px; 
-            background: rgba(28, 28, 30, 0.96); 
-            backdrop-filter: blur(25px); 
-            border: 1px solid var(--border-glass); 
-            border-radius: 14px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7); 
-            width: 180px; 
-            padding: 6px;
-            z-index: 2500;
-            max-height: 320px;
-            overflow-y: auto;
-        }
-        .dropdown-menu.show { display: block; animation: fadeIn 0.2s ease; }
-
-        /* Yazı Stili ve Hız Menüleri */
-        #font-style-menu { width: 320px; display: none; padding: 12px; gap: 10px; }
-        #font-style-menu.show { display: flex !important; }
-        .menu-column { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-        .menu-column-title {
-            font-size: 0.72rem;
-            color: var(--accent-color);
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-            letter-spacing: 0.05em;
-            padding-left: 4px;
-        }
-        
-        .dropdown-option { 
-            padding: 8px 10px; 
-            color: var(--text-primary); 
-            background: none; 
-            border: none; 
-            width: 100%; 
-            text-align: left; 
-            cursor: pointer; 
-            font-size: 0.83rem; 
-            border-radius: 8px;
-            transition: background 0.15s;
-            font-weight: 500;
-        }
-        .dropdown-option:hover { background-color: rgba(245, 158, 11, 0.2); color: var(--accent-color); }
-        .dropdown-option.active { background-color: rgba(245, 158, 11, 0.3); color: var(--accent-color); }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            #sidebar { width: 100%; min-width: 100%; height: 45vh; }
-            #map { height: 55vh; }
-        }
-    </style>
+/* Kontroller */
+.top-controls{position:absolute;top:20px;right:24px;z-index:2000;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.pill-btn{background:rgba(28,28,30,.88);backdrop-filter:blur(20px);color:var(--text-primary);border:1px solid var(--border-glass);padding:8px 16px;height:42px;border-radius:21px;cursor:pointer;font-size:.85rem;font-weight:500;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 8px 25px rgba(0,0,0,.4);transition:all .2s}
+.pill-btn:hover{transform:scale(1.04);background:rgba(58,58,60,.95);border-color:var(--accent-color)}
+.dropdown-menu{display:none;position:absolute;right:0;top:52px;background:rgba(28,28,30,.96);backdrop-filter:blur(25px);border:1px solid var(--border-glass);border-radius:14px;box-shadow:0 15px 35px rgba(0,0,0,.7);width:180px;padding:6px;z-index:2500;max-height:320px;overflow-y:auto}
+.dropdown-menu.show{display:block;animation:fadeIn .2s ease}
+#font-style-menu{width:320px;padding:12px;gap:10px}
+#font-style-menu.show{display:flex!important}
+.menu-column{flex:1;display:flex;flex-direction:column;gap:4px}
+.menu-column-title{font-size:.72rem;color:var(--accent-color);font-weight:600;text-transform:uppercase;margin-bottom:4px;letter-spacing:.05em;padding-left:4px}
+.dropdown-option{padding:8px 10px;color:var(--text-primary);background:none;border:none;width:100%;text-align:left;cursor:pointer;font-size:.83rem;border-radius:8px;transition:background .15s;font-weight:500;font-family:inherit}
+.dropdown-option:hover{background:rgba(245,158,11,.2);color:var(--accent-color)}
+.dropdown-option.active{background:rgba(245,158,11,.3);color:var(--accent-color)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){body{flex-direction:column}#sidebar{width:100%;min-width:100%;height:45vh}#stage{height:55vh}}
+</style>
 </head>
 <body>
 
-    <!-- Sağ Üst Kontroller -->
-    <div class="top-controls">
-        <!-- Hareket Hızı Butonu -->
-        <div style="position: relative;" id="speed-container">
-            <button class="pill-btn" onclick="toggleSpeedMenu()" id="speed-btn">⚡ Hız: 1x</button>
-            <div id="speed-menu" class="dropdown-menu">
-                <button class="dropdown-option speed-opt" onclick="setSpeed(0.25, '0.25x', this)">0.25x (Yavaş)</button>
-                <button class="dropdown-option speed-opt" onclick="setSpeed(0.50, '0.50x', this)">0.50x</button>
-                <button class="dropdown-option speed-opt" onclick="setSpeed(0.75, '0.75x', this)">0.75x</button>
-                <button class="dropdown-option speed-opt active" onclick="setSpeed(1, '1x', this)">1x (Normal)</button>
-                <button class="dropdown-option speed-opt" onclick="setSpeed(1.5, '1.5x', this)">1.5x</button>
-                <button class="dropdown-option speed-opt" onclick="setSpeed(2, '2x', this)">2x (Hızlı)</button>
-            </div>
-        </div>
+<div id="sidebar">
+  <div class="sidebar-header"><h1 id="ui-title">İskendernâme Atlası</h1></div>
+  <div class="work-list" id="workList"></div>
+</div>
 
-        <!-- Yazı Stili Butonu -->
-        <div style="position: relative;" id="font-container">
-            <button class="pill-btn" onclick="toggleFontMenu()" id="font-style-btn">🔤 Yazı Stili</button>
-            <div id="font-style-menu" class="dropdown-menu">
-                <div class="menu-column">
-                    <div class="menu-column-title" id="lbl-font">Yazı Tipi</div>
-                    <button class="dropdown-option font-opt active" onclick="setFontFamily('default', this)">Varsayılan</button>
-                    <button class="dropdown-option font-opt" onclick="setFontFamily('roboto', this)">Roboto</button>
-                    <button class="dropdown-option font-opt" onclick="setFontFamily('playfair', this)">Playfair</button>
-                </div>
-                <div class="menu-column">
-                    <div class="menu-column-title" id="lbl-weight">Kalınlık</div>
-                    <button class="dropdown-option weight-opt active" onclick="setFontWeight('400', this)">Normal</button>
-                    <button class="dropdown-option weight-opt" onclick="setFontWeight('700', this)">Kalın</button>
-                </div>
-            </div>
-        </div>
+<div id="stage">
+  <canvas id="stars"></canvas>
+  <div id="globe"></div>
 
-        <!-- Dil Seçici Butonu -->
-        <div style="position: relative;" id="lang-container">
-            <button class="pill-btn" onclick="toggleLangMenu()">🌐 Dil / Lang</button>
-            <div id="lang-menu" class="dropdown-menu">
-                <button class="dropdown-option" onclick="setLanguage('tr')">🇹🇷 Türkçe</button>
-                <button class="dropdown-option" onclick="setLanguage('en')">🇬🇧 English</button>
-                <button class="dropdown-option" onclick="setLanguage('fr')">🇫🇷 Français</button>
-                <button class="dropdown-option" onclick="setLanguage('ar')">🇸🇦 العربية</button>
-                <button class="dropdown-option" onclick="setLanguage('fa')">🇮🇷 فارسی</button>
-                <button class="dropdown-option" onclick="setLanguage('zh')">🇨🇳 中文</button>
-                <button class="dropdown-option" onclick="setLanguage('de')">🇩🇪 Deutsch</button>
-                <button class="dropdown-option" onclick="setLanguage('el')">🇬🇷 Ελληνικά</button>
-                <button class="dropdown-option" onclick="setLanguage('ja')">🇯🇵 日本語</button>
-                <button class="dropdown-option" onclick="setLanguage('hi')">🇮🇳 हिन्दी</button>
-            </div>
-        </div>
-
-        <!-- Sıfırlama Butonu -->
-        <button class="pill-btn" onclick="resetMapToInitial()" title="İlk Konuma Dön">🔄 Sıfırla</button>
+  <div class="top-controls">
+    <div style="position:relative" id="speed-container">
+      <button class="pill-btn" onclick="toggleMenu('speed-menu')" id="speed-btn">⚡ Hız: 1x</button>
+      <div id="speed-menu" class="dropdown-menu">
+        <button class="dropdown-option speed-opt" onclick="setSpeed(0.25,'0.25x',this)">0.25x (Yavaş)</button>
+        <button class="dropdown-option speed-opt" onclick="setSpeed(0.5,'0.50x',this)">0.50x</button>
+        <button class="dropdown-option speed-opt" onclick="setSpeed(0.75,'0.75x',this)">0.75x</button>
+        <button class="dropdown-option speed-opt active" onclick="setSpeed(1,'1x',this)">1x (Normal)</button>
+        <button class="dropdown-option speed-opt" onclick="setSpeed(1.5,'1.5x',this)">1.5x</button>
+        <button class="dropdown-option speed-opt" onclick="setSpeed(2,'2x',this)">2x (Hızlı)</button>
+      </div>
     </div>
-
-    <div id="sidebar">
-        <div class="sidebar-header">
-            <h1 id="ui-title">İskendernâme Atlası</h1>
+    <div style="position:relative" id="font-container">
+      <button class="pill-btn" onclick="toggleMenu('font-style-menu')" id="font-style-btn">🔤 Yazı Stili</button>
+      <div id="font-style-menu" class="dropdown-menu">
+        <div class="menu-column">
+          <div class="menu-column-title" id="lbl-font">Yazı Tipi</div>
+          <button class="dropdown-option font-opt active" onclick="setFontFamily('default',this)">Varsayılan</button>
+          <button class="dropdown-option font-opt" onclick="setFontFamily('roboto',this)">Roboto</button>
+          <button class="dropdown-option font-opt" onclick="setFontFamily('playfair',this)">Playfair</button>
         </div>
-        <div class="work-list" id="workList"></div>
+        <div class="menu-column">
+          <div class="menu-column-title" id="lbl-weight">Kalınlık</div>
+          <button class="dropdown-option weight-opt active" onclick="setFontWeight('400',this)">Normal</button>
+          <button class="dropdown-option weight-opt" onclick="setFontWeight('700',this)">Kalın</button>
+        </div>
+      </div>
     </div>
+    <div style="position:relative" id="lang-container">
+      <button class="pill-btn" onclick="toggleMenu('lang-menu')">🌐 Dil / Lang</button>
+      <div id="lang-menu" class="dropdown-menu">
+        <button class="dropdown-option" onclick="setLanguage('tr')">🇹🇷 Türkçe</button>
+        <button class="dropdown-option" onclick="setLanguage('en')">🇬🇧 English</button>
+        <button class="dropdown-option" onclick="setLanguage('fr')">🇫🇷 Français</button>
+        <button class="dropdown-option" onclick="setLanguage('ar')">🇸🇦 العربية</button>
+        <button class="dropdown-option" onclick="setLanguage('fa')">🇮🇷 فارسی</button>
+        <button class="dropdown-option" onclick="setLanguage('zh')">🇨🇳 中文</button>
+        <button class="dropdown-option" onclick="setLanguage('de')">🇩🇪 Deutsch</button>
+        <button class="dropdown-option" onclick="setLanguage('el')">🇬🇷 Ελληνικά</button>
+        <button class="dropdown-option" onclick="setLanguage('ja')">🇯🇵 日本語</button>
+        <button class="dropdown-option" onclick="setLanguage('hi')">🇮🇳 हिन्दी</button>
+      </div>
+    </div>
+    <button class="pill-btn" onclick="resetMapToInitial()" title="İlk Konuma Dön">🔄 Sıfırla</button>
+  </div>
 
-    <!-- Harita Alanı -->
-    <div id="map"></div>
+  <div id="popup"><button id="popup-close" onclick="closePopup()">✕</button><div id="popup-body"></div></div>
+</div>
 
-    <!-- Leaflet JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script>
-        const translations = {
-            tr: {
-                title: "İskendernâme Atlası",
-                fontStyle: "🔤 Yazı Stili",
-                fontTitle: "Yazı Tipi",
-                weightTitle: "Kalınlık",
-                activeRoute: "Rotada Aktif (35 Durak & Animasyon)",
-                reset: "Sıfırla",
-                center: "Merkez",
-                period: "Dönem",
-                form: "Edebi Tür",
-                lang: "Dili",
-                purpose: "Yazılış Amacı",
-                subject: "Genel Konu",
-                initialPopup: "Yazıldığı Merkez: Amasya<br><em>(35 Duraklı araba/gemi rotasını başlatmak için tıklayın)</em>",
-                workTitle: "İskendernâme",
-                author: "Ahmedî (Taceddin İbrahim b. Hızır)",
-                workPeriod: "14. Yüzyıl Sonu – 15. Yüzyıl Başı",
-                workCenter: "Amasya",
-                workForm: "Mesnevi (Tarihî, Epik ve Felsefi Eser)",
-                workLang: "Eski Anadolu Türkçesi (Osmanlıca)",
-                workPurpose: "Hükümdarlara devlet yönetimi, adalet, ahlak, felsefe ve tıp dersi vermek; ideal hükümdar portresi çizmek.",
-                workSubject: "Büyük İskender’in efsanevi ve tarihi hayatı, Doğu'dan Batı'ya seferleri, felsefi tartışmaları ve dünya coğrafyası."
-            },
-            en: {
-                title: "İskendernâme Atlas",
-                fontStyle: "🔤 Font Style",
-                fontTitle: "Font Family",
-                weightTitle: "Weight",
-                activeRoute: "Active Route (35 Stops & Animation)",
-                reset: "Reset",
-                center: "Center",
-                period: "Period",
-                form: "Literary Form",
-                lang: "Language",
-                purpose: "Purpose",
-                subject: "Subject",
-                initialPopup: "Center: Amasya<br><em>(Click to start the 35-stop car/ship route)</em>",
-                workTitle: "İskendernâme",
-                author: "Ahmedî (Taceddin İbrahim b. Hızır)",
-                workPeriod: "Late 14th – Early 15th Century",
-                workCenter: "Amasya",
-                workForm: "Masnavi (Historical, Epic & Philosophical Work)",
-                workLang: "Old Anatolian Turkish (Ottoman)",
-                workPurpose: "To guide rulers on governance, justice, ethics, and philosophy; portraying the ideal monarch.",
-                workSubject: "The legendary and historical life of Alexander the Great, his campaigns from East to West."
-            },
-            fr: {
-                title: "Atlas d'İskendernâme",
-                fontStyle: "🔤 Style de Police",
-                fontTitle: "Police",
-                weightTitle: "Épaisseur",
-                activeRoute: "Route Active (35 Arrêts & Animation)",
-                reset: "Réinitialiser",
-                center: "Centre",
-                period: "Période",
-                form: "Genre Littéraire",
-                lang: "Langue",
-                purpose: "Objectif",
-                subject: "Sujet",
-                initialPopup: "Centre : Amasya<br><em>(Cliquez pour lancer la route de 35 arrêts)</em>",
-                workTitle: "İskendernâme",
-                author: "Ahmedî (Taceddin İbrahim b. Hızır)",
-                workPeriod: "Fin XIVe – Début XVe Siècle",
-                workCenter: "Amasya",
-                workForm: "Mathnawi (Œuvre Historique, Épique & Philosophique)",
-                workLang: "Vieux Turc Anatolien",
-                workPurpose: "Conseiller les souverains sur la gouvernance, la justice et la morale.",
-                workSubject: "La vie légendaire et historique d'Alexandre le Grand."
-            },
-            ar: {
-                title: "أطلس إسكندرنامه",
-                fontStyle: "🔤 نمط الخط",
-                fontTitle: "نوع الخط",
-                weightTitle: "السمك",
-                activeRoute: "مسار نشط (35 محطة وحركة)",
-                reset: "إعادة ضبط",
-                center: "المركز",
-                period: "الفترة",
-                form: "الشكل الأدبي",
-                lang: "اللغة",
-                purpose: "الغرض من التأليف",
-                subject: "الموضوع العام",
-                initialPopup: "مركز الكتابة: أماسيا<br><em>(انقر لبدء مسار الرحلة)</em>",
-                workTitle: "إسكندرنامه",
-                author: "أحمدي (تاج الدين إبراهيم بن خضر)",
-                workPeriod: "أواخر القرن 14 - أوائل القرن 15",
-                workCenter: "أماسيا",
-                workForm: "مثنوي (عمل تاريخي وملحمي وفلسفي)",
-                workLang: "التركية الأناضولية القديمة",
-                workPurpose: "توجيه الحكام في الإدارة والعدالة والأخلاق.",
-                workSubject: "الحياة الأسطورية والتاريخية للإسكندر الأكبر."
-            },
-            fa: {
-                title: "اتلس اسکندرنامه",
-                fontStyle: "🔤 سبک قلم",
-                fontTitle: "نوع قلم",
-                weightTitle: "ضخامت",
-                activeRoute: "مسیر فعال (۳۵ ایستگاه و انیمیشن)",
-                reset: "بازنشانی",
-                center: "مرکز",
-                period: "دوره",
-                form: "قالب ادبی",
-                lang: "زبان",
-                purpose: "هدف نگارش",
-                subject: "موضوع کلی",
-                initialPopup: "مرکز نگارش: آماسیه<br><em>(برای شروع مسیر کلیک کنید)</em>",
-                workTitle: "اسکندرنامه",
-                author: "احمدی (تاج‌الدین ابراهیم بن خضر)",
-                workPeriod: "اواخر قرن ۱۴ - اواخر قرن ۱۵",
-                workCenter: "آماسیه",
-                workForm: "مثنوی (اثری تاریخی، حماسی و فلسفی)",
-                workLang: "ترکی کهن آناتولی",
-                workPurpose: "راهنمایی حاکمان در امر کشورداری و عدالت.",
-                workSubject: "زندگی اسطوره‌ای و تاریخی اسکندر مقدونی."
-            },
-            zh: {
-                title: "亚历山大史诗地图集",
-                fontStyle: "🔤 字体样式",
-                fontTitle: "字体",
-                weightTitle: "字重",
-                activeRoute: "活动路线（35站及动画）",
-                reset: "重置",
-                center: "中心",
-                period: "时期",
-                form: "文学体裁",
-                lang: "语言",
-                purpose: "写作目的",
-                subject: "主题",
-                initialPopup: "写作中心：阿马西亚<br><em>（点击开始35站车船路线）</em>",
-                workTitle: "亚历山大史诗 (İskendernâme)",
-                author: "艾哈迈迪 (Ahmedî)",
-                workPeriod: "14世纪末 - 15世纪初",
-                workCenter: "阿马西亚",
-                workForm: "长诗/史诗",
-                workLang: "古安纳托利亚突厥语",
-                workPurpose: "向统治者传授治国、正义与哲学之道。",
-                workSubject: "亚历山大大帝的传奇与历史生平。"
-            },
-            de: {
-                title: "İskendernâme Atlas",
-                fontStyle: "🔤 Schriftstil",
-                fontTitle: "Schriftart",
-                weightTitle: "Stärke",
-                activeRoute: "Aktive Route (35 Stationen & Animation)",
-                reset: "Zurücksetzen",
-                center: "Zentrum",
-                period: "Epoche",
-                form: "Literarische Form",
-                lang: "Sprache",
-                purpose: "Zweck",
-                subject: "Thema",
-                initialPopup: "Zentrum: Amasya<br><em>(Klicken, um die Route zu starten)</em>",
-                workTitle: "İskendernâme",
-                author: "Ahmedî",
-                workPeriod: "Spätes 14. – frühes 15. Jahrhundert",
-                workCenter: "Amasya",
-                workForm: "Mathnawi (Historisches & Philosophisches Werk)",
-                workLang: "Altanatolisches Türkisch",
-                workPurpose: "Herrscher in Staatsführung und Moral unterweisen.",
-                workSubject: "Das legendäre Leben Alexander des Großen."
-            },
-            el: {
-                title: "Άτλας Ισκεντερνάμε",
-                fontStyle: "🔤 Στυλ Γραμματοσειράς",
-                fontTitle: "Γραμματοσειρά",
-                weightTitle: "Πάχος",
-                activeRoute: "Ενεργή Διαδρομή (35 Στάσεις)",
-                reset: "Επαναφορά",
-                center: "Κέντρο",
-                period: "Περίοδος",
-                form: "Λογοτεχνική Μορφή",
-                lang: "Γλώσσα",
-                purpose: "Σκοπός",
-                subject: "Θέμα",
-                initialPopup: "Κέντρο: Αμάσεια<br><em>(Κάντε κλικ για εκκίνηση)</em>",
-                workTitle: "İskendernâme",
-                author: "Ahmedî",
-                workPeriod: "14ος - 15ος Αιώνας",
-                workCenter: "Αμάσεια",
-                workForm: "Έπος / Μεσνεβί",
-                workLang: "Παλαιά Ανατολιακή Τουρκική",
-                workPurpose: "Διδασκαλία ηγεμόνων στη δικαιοσύνη.",
-                workSubject: "Η ζωή του Μεγάλου Αλεξάνδρου."
-            },
-            ja: {
-                title: "イスカンダルナメ アトラス",
-                fontStyle: "🔤 フォントスタイル",
-                fontTitle: "フォント",
-                weightTitle: "太さ",
-                activeRoute: "アクティブルート (35駅 & アニメ)",
-                reset: "リセット",
-                center: "中心地",
-                period: "時代",
-                form: "文学形式",
-                lang: "言語",
-                purpose: "執筆目的",
-                subject: "主題",
-                initialPopup: "執筆地: アマシア<br><em>(クリックしてルートを開始)</em>",
-                workTitle: "イスカンダルナメ",
-                author: "アフメディー",
-                workPeriod: "14世紀末〜15世紀初頭",
-                workCenter: "アマシア",
-                workForm: "マスナヴィー（歴史・哲学叙事詩）",
-                workLang: "古アナトリア・トルコ語",
-                workPurpose: "統治者に正義と道徳を教えるため。",
-                workSubject: "アレクサンドロス大王の伝説的生涯。"
-            },
-            hi: {
-                title: "इस्केंदरनामे एटलस",
-                fontStyle: "🔤 फ़ॉन्ट शैली",
-                fontTitle: "फ़ॉन्ट",
-                weightTitle: "मोटाई",
-                activeRoute: "सक्रिय मार्ग (35 पड़ाव)",
-                reset: "रीसेट",
-                center: "केंद्र",
-                period: "काल",
-                form: "साहित्यिक रूप",
-                lang: "भाषा",
-                purpose: "उद्देश्य",
-                subject: "विषय",
-                initialPopup: "केंद्र: अमास्या<br><em>(यात्रा शुरू करने के लिए क्लिक करें)</em>",
-                workTitle: "इस्केंदरनामे",
-                author: "अहमदी",
-                workPeriod: "14वीं - 15वीं शताब्दी",
-                workCenter: "अमास्या",
-                workForm: "मसनवी (ऐतिहासिक और दार्शनिक)",
-                workLang: "पुरानी अनाटोलियन तुर्की",
-                workPurpose: "शासकों को शासन और न्याय की शिक्षा देना।",
-                workSubject: "सिकंदर महान का जीवन और अभियान।"
-            }
-        };
+<script src="https://cdn.jsdelivr.net/npm/globe.gl@2.27.2/dist/globe.gl.min.js"></script>
+<script>
+/* ================= ÇEVİRİLER ================= */
+const translations={
+tr:{title:"İskendernâme Atlası",fontStyle:"🔤 Yazı Stili",fontTitle:"Yazı Tipi",weightTitle:"Kalınlık",activeRoute:"Rotada Aktif (35 Durak & Animasyon)",center:"Merkez",period:"Dönem",form:"Edebi Tür",lang:"Dili",purpose:"Yazılış Amacı",subject:"Genel Konu",workTitle:"İskendernâme",author:"Ahmedî (Taceddin İbrahim b. Hızır)",workPeriod:"14. Yüzyıl Sonu – 15. Yüzyıl Başı",workCenter:"Amasya",workForm:"Mesnevi (Tarihî, Epik ve Felsefi Eser)",workLang:"Eski Anadolu Türkçesi (Osmanlıca)",workPurpose:"Hükümdarlara devlet yönetimi, adalet, ahlak, felsefe ve tıp dersi vermek; ideal hükümdar portresi çizmek.",workSubject:"Büyük İskender’in efsanevi ve tarihi hayatı, Doğu'dan Batı'ya seferleri, felsefi tartışmaları ve dünya coğrafyası."},
+en:{title:"İskendernâme Atlas",fontStyle:"🔤 Font Style",fontTitle:"Font Family",weightTitle:"Weight",activeRoute:"Active Route (35 Stops & Animation)",center:"Center",period:"Period",form:"Literary Form",lang:"Language",purpose:"Purpose",subject:"Subject",workTitle:"İskendernâme",author:"Ahmedî (Taceddin İbrahim b. Hızır)",workPeriod:"Late 14th – Early 15th Century",workCenter:"Amasya",workForm:"Masnavi (Historical, Epic & Philosophical Work)",workLang:"Old Anatolian Turkish (Ottoman)",workPurpose:"To guide rulers on governance, justice, ethics, and philosophy; portraying the ideal monarch.",workSubject:"The legendary and historical life of Alexander the Great, his campaigns from East to West."},
+fr:{title:"Atlas d'İskendernâme",fontStyle:"🔤 Style de Police",fontTitle:"Police",weightTitle:"Épaisseur",activeRoute:"Route Active (35 Arrêts & Animation)",center:"Centre",period:"Période",form:"Genre Littéraire",lang:"Langue",purpose:"Objectif",subject:"Sujet",workTitle:"İskendernâme",author:"Ahmedî (Taceddin İbrahim b. Hızır)",workPeriod:"Fin XIVe – Début XVe Siècle",workCenter:"Amasya",workForm:"Mathnawi (Œuvre Historique, Épique & Philosophique)",workLang:"Vieux Turc Anatolien",workPurpose:"Conseiller les souverains sur la gouvernance, la justice et la morale.",workSubject:"La vie légendaire et historique d'Alexandre le Grand."},
+ar:{title:"أطلس إسكندرنامه",fontStyle:"🔤 نمط الخط",fontTitle:"نوع الخط",weightTitle:"السمك",activeRoute:"مسار نشط (35 محطة وحركة)",center:"المركز",period:"الفترة",form:"الشكل الأدبي",lang:"اللغة",purpose:"الغرض من التأليف",subject:"الموضوع العام",workTitle:"إسكندرنامه",author:"أحمدي (تاج الدين إبراهيم بن خضر)",workPeriod:"أواخر القرن 14 - أوائل القرن 15",workCenter:"أماسيا",workForm:"مثنوي (عمل تاريخي وملحمي وفلسفي)",workLang:"التركية الأناضولية القديمة",workPurpose:"توجيه الحكام في الإدارة والعدالة والأخلاق.",workSubject:"الحياة الأسطورية والتاريخية للإسكندر الأكبر."},
+fa:{title:"اتلس اسکندرنامه",fontStyle:"🔤 سبک قلم",fontTitle:"نوع قلم",weightTitle:"ضخامت",activeRoute:"مسیر فعال (۳۵ ایستگاه و انیمیشن)",center:"مرکز",period:"دوره",form:"قالب ادبی",lang:"زبان",purpose:"هدف نگارش",subject:"موضوع کلی",workTitle:"اسکندرنامه",author:"احمدی (تاج‌الدین ابراهیم بن خضر)",workPeriod:"اواخر قرن ۱۴ - اواخر قرن ۱۵",workCenter:"آماسیه",workForm:"مثنوی (اثری تاریخی، حماسی و فلسفی)",workLang:"ترکی کهن آناتولی",workPurpose:"راهنمایی حاکمان در امر کشورداری و عدالت.",workSubject:"زندگی اسطوره‌ای و تاریخی اسکندر مقدونی."},
+zh:{title:"亚历山大史诗地图集",fontStyle:"🔤 字体样式",fontTitle:"字体",weightTitle:"字重",activeRoute:"活动路线（35站及动画）",center:"中心",period:"时期",form:"文学体裁",lang:"语言",purpose:"写作目的",subject:"主题",workTitle:"亚历山大史诗 (İskendernâme)",author:"艾哈迈迪 (Ahmedî)",workPeriod:"14世纪末 - 15世纪初",workCenter:"阿马西亚",workForm:"长诗/史诗",workLang:"古安纳托利亚突厥语",workPurpose:"向统治者传授治国、正义与哲学之道。",workSubject:"亚历山大大帝的传奇与历史生平。"},
+de:{title:"İskendernâme Atlas",fontStyle:"🔤 Schriftstil",fontTitle:"Schriftart",weightTitle:"Stärke",activeRoute:"Aktive Route (35 Stationen & Animation)",center:"Zentrum",period:"Epoche",form:"Literarische Form",lang:"Sprache",purpose:"Zweck",subject:"Thema",workTitle:"İskendernâme",author:"Ahmedî",workPeriod:"Spätes 14. – frühes 15. Jahrhundert",workCenter:"Amasya",workForm:"Mathnawi (Historisches & Philosophisches Werk)",workLang:"Altanatolisches Türkisch",workPurpose:"Herrscher in Staatsführung und Moral unterweisen.",workSubject:"Das legendäre Leben Alexander des Großen."},
+el:{title:"Άτλας Ισκεντερνάμε",fontStyle:"🔤 Στυλ Γραμματοσειράς",fontTitle:"Γραμματοσειρά",weightTitle:"Πάχος",activeRoute:"Ενεργή Διαδρομή (35 Στάσεις)",center:"Κέντρο",period:"Περίοδος",form:"Λογοτεχνική Μορφή",lang:"Γλώσσα",purpose:"Σκοπός",subject:"Θέμα",workTitle:"İskendernâme",author:"Ahmedî",workPeriod:"14ος - 15ος Αιώνας",workCenter:"Αμάσεια",workForm:"Έπος / Μεσνεβί",workLang:"Παλαιά Ανατολιακή Τουρκική",workPurpose:"Διδασκαλία ηγεμόνων στη δικαιοσύνη.",workSubject:"Η ζωή του Μεγάλου Αλεξάνδρου."},
+ja:{title:"イスカンダルナメ アトラス",fontStyle:"🔤 フォントスタイル",fontTitle:"フォント",weightTitle:"太さ",activeRoute:"アクティブルート (35駅 & アニメ)",center:"中心地",period:"時代",form:"文学形式",lang:"言語",purpose:"執筆目的",subject:"主題",workTitle:"イスカンダルナメ",author:"アフメディー",workPeriod:"14世紀末〜15世紀初頭",workCenter:"アマシア",workForm:"マスナヴィー（歴史・哲学叙事詩）",workLang:"古アナトリア・トルコ語",workPurpose:"統治者に正義と道徳を教えるため。",workSubject:"アレクサンドロス大王の伝説的生涯。"},
+hi:{title:"इस्केंदरनामे एटलस",fontStyle:"🔤 फ़ॉन्ट शैली",fontTitle:"फ़ॉन्ट",weightTitle:"मोटाई",activeRoute:"सक्रिय मार्ग (35 पड़ाव)",center:"केंद्र",period:"काल",form:"साहित्यिक रूप",lang:"भाषा",purpose:"उद्देश्य",subject:"विषय",workTitle:"इस्केंदरनामे",author:"अहमदी",workPeriod:"14वीं - 15वीं शताब्दी",workCenter:"अमास्या",workForm:"मसनवी (ऐतिहासिक और दार्शनिक)",workLang:"पुरानी अनाटोलियन तुर्की",workPurpose:"शासकों को शासन और न्याय की शिक्षा देना।",workSubject:"सिकंदर महान का जीवन और अभियान।"}
+};
+let currentLang='tr',speed=1,activeWorkId=null,runId=0,popupOpen=false;
 
-        let currentLang = 'tr';
-        let animationSpeedMultiplier = 1;
+/* ================= VERİ (koordinatlar değişmedi) ================= */
+const IMG=['1524231757912-21f4fe3a7200','1518684079-3c830dcef090','1541432901042-2d8bd64b4a9b','1584646098378-0874589d76b1','1509316975850-ff9c5deb0cd9','1500382017468-9049fed747ef','1524492412937-b28074a5d7da','1507525428034-b723cf961d3e','1512343879784-a960bf40e7f2','1539650116574-8efeb43e2750','1508804185872-d7badad00f7d','1578632767115-351597cf2477','1568322445389-f64ac25256e6','1599839575945-a9e330adc30d','1591604129939-f1efa4d9f7fa','1577083552431-6e5fd01aa342','1464822759023-fed622ff2c3b'];
+const img=i=>`https://images.unsplash.com/photo-${IMG[i]}?w=800`;
+const WORK={id:1,lat:40.6549,lng:35.8356,image:'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800'};
+// [başlık, enlem, boylam, alıntı, görsel]
+const STOPS=[
+["Rûm",39.9334,32.8597,"Rûm diyarına varıp Anadolu'nun ulu kalelerini ve şehirlerini fetheyledi.",0],
+["Fırat Nehri",37.1111,38.2783,"Fırat suyunun kenarına gelip ordusuyla nehrin akışını temaşa kıldı.",1],
+["Medâyin",33.09,44.58,"Medâyin şehrine ulaşıp eski sultanların saraylarında ibretle gezindi.",2],
+["İran",32.4279,53.688,"İran mülküne girip Dara'nın tahtını devirdi ve adaleti tesis eyledi.",3],
+["Zâbilistân",31.6289,65.7372,"Zâbilistân dağlarını aşıp pehlivanlar diyarından selamla geçti.",4],
+["Sîstân",30.9583,61.5333,"Sîstân vilayetinin çöllerinde konaklayıp gazileriyle istişare kıldı.",5],
+["Hint Ülkesi / Hindistan",28.6139,77.209,"Hindistan'ın acayip ve garip illerine varıp filleri ve ejderhaları müşahede etti.",6],
+["Sind",25.396,68.3578,"Sind nehrinin deryaya döküldüğü ulu sahilde donanma kurdu.",7],
+["Râyic Adası",15,75,"Râyic adasının ıssız kumsallarına çıkarak deniz ötesi sırları aradı.",8],
+["Râminî Adası",12,80,"Râminî adasında acayip mahluklar ve efsanevi hazinelerle karşılaştı.",9],
+["Vâkvâk Adası",0,105,"Vâkvâk adasında insan meyvesi veren o meşhur acayip ağaçları gördü.",10],
+["Betân / Benan Adası",5,95,"Betân adasının sarp kayalıkları arasında zorlu bir deniz seferi yaptı.",11],
+["Etvârib / Etvâriyye Adası",8,73,"Etvârib adasında deryanın dalgalarıyla boğuşup yönünü tayin eyledi.",12],
+["Câbe / Cava Adası",-7.5361,112.2384,"Câbe adasının baharat kokulu ormanlarında çadır kurdu.",13],
+["Lengâvûs / Lenkâvûs Adası",3.139,101.6869,"Lengâvûs adasında denizin derinliklerinden gelen gizli sesleri dinledi.",14],
+["Tinnîn Adası",10,85,"Tinnîn adasında ejderha misali büyük yaratıkların menziline uğradı.",3],
+["Selâmıt / Selamit Adası",18,57,"Selâmıt adasında selametle karaya ayak basıp şükür namazı kıldı.",15],
+["Elmas Vadisi",35,70,"Elmas vadisinde kartalların yardımıyla devasa elmasları toplattı.",16],
+["Billur Köşk",38,65,"Billur köşkün gümüş ve camdan yapılmış ihtişamına hayran kaldı.",2],
+["Çin",39.9042,116.4074,"Çin ülkesine varıp seddi aştı ve Doğu'nun kağanından haraç aldı.",10],
+["Kişmîr / Keşmir",33.7782,76.5762,"Keşmir vadisinin yeşillikleri arasında dervişlerle sohbet eyledi.",7],
+["Türk Ülkesi",45,70,"Türk ellerine varıp Alp erlerin mertliğini ve yaylaklarını müşahede kıldı.",1],
+["Tatargar",48,80,"Tatargar vilayetinin hudut boylarında karargah kurdu.",0],
+["Rus Ülkesi",55.7558,37.6173,"Rus diyarının soğuk ve karlı ormanlarında kuzey seferini tamamladı.",4],
+["Mâzenderân",36.5656,53.0586,"Mâzenderân diyarında periler ve devler efsanesine konu olan dağları gezdi.",13],
+["Horasan",36.297,59.6062,"Horasan ilinin irfan meclislerinde alimlerle ilmi münazara kıldı.",11],
+["Mısır",30.0444,31.2357,"Mısır'a varıp Nil nehrinin bereketli topraklarında adaletle hükmetti.",12],
+["Nil Nehri",30.1,31.3,"Nil nehrinin taşkın sularını ve suyunun gizemini ulemaya sordu.",8],
+["İskenderiyye",31.2001,29.9187,"Kendi adıyla anılan İskenderiye şehrini kurup fener inşa ettirdi.",9],
+["Mağrib",31.7917,-7.0926,"Mağrib diyarına, güneşin battığı en uzak batı sınırlarına kadar ulaştı.",16],
+["Bağdat",33.3152,44.3661,"Bağdat şehrinde Dicle kıyısında büyük bir medeniyet merkezi kurdu.",2],
+["Hicaz & Kâbe",21.3891,39.8579,"Hicaz topraklarına varıp Kâbe-i Muazzama'yı büyük bir tevazu ile ziyaret etti.",14],
+["Mescid-i Aksa / Kudüs",31.7767,35.2345,"Kudüs'e varıp Mescid-i Aksa'da ibadet edip hutbe okuttu.",15],
+["Karanlıklar Diyarı (Zulmet)",65,40,"Zulümat diyarına (Karanlıklar ülkesi) girip Âb-ı Hayat (ebedilik suyu) aradı.",4],
+["Cadılar Diyarı",60,50,"Cadılar ve sihirbazlar diyarından hikmetle ve selametle geçti.",6]
+].map((s,i)=>({step:i+1,title:s[0],lat:s[1],lng:s[2],quote:s[3],image:img(s[4])}));
 
-        const classicalWorks = [
-            {
-                id: 1,
-                title: "İskendernâme",
-                author: "Ahmedî (Taceddin İbrahim b. Hızır)",
-                lat: 40.6549, lng: 35.8356,
-                image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800",
-                journey: [
-                    { step: 1, title: "Rûm", lat: 39.9334, lng: 32.8597, quote: "Rûm diyarına varıp Anadolu'nun ulu kalelerini ve şehirlerini fetheyledi.", image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800", transport: "car" },
-                    { step: 2, title: "Fırat Nehri", lat: 37.1111, lng: 38.2783, quote: "Fırat suyunun kenarına gelip ordusuyla nehrin akışını temaşa kıldı.", image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800", transport: "car" },
-                    { step: 3, title: "Medâyin", lat: 33.0900, lng: 44.5800, quote: "Medâyin şehrine ulaşıp eski sultanların saraylarında ibretle gezindi.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800", transport: "car" },
-                    { step: 4, title: "İran", lat: 32.4279, lng: 53.6880, quote: "İran mülküne girip Dara'nın tahtını devirdi ve adaleti tesis eyledi.", image: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=800", transport: "car" },
-                    { step: 5, title: "Zâbilistân", lat: 31.6289, lng: 65.7372, quote: "Zâbilistân dağlarını aşıp pehlivanlar diyarından selamla geçti.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", transport: "car" },
-                    { step: 6, title: "Sîstân", lat: 30.9583, lng: 61.5333, quote: "Sîstân vilayetinin çöllerinde konaklayıp gazileriyle istişare kıldı.", image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800", transport: "car" },
-                    { step: 7, title: "Hint Ülkesi / Hindistan", lat: 28.6139, lng: 77.2090, quote: "Hindistan'ın acayip ve garip illerine varıp filleri ve ejderhaları müşahede etti.", image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800", transport: "car" },
-                    { step: 8, title: "Sind", lat: 25.3960, lng: 68.3578, quote: "Sind nehrinin deryaya döküldüğü ulu sahilde donanma kurdu.", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", transport: "ship" },
-                    { step: 9, title: "Râyic Adası", lat: 15.0000, lng: 75.0000, quote: "Râyic adasının ıssız kumsallarına çıkarak deniz ötesi sırları aradı.", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800", transport: "ship" },
-                    { step: 10, title: "Râminî Adası", lat: 12.0000, lng: 80.0000, quote: "Râminî adasında acayip mahluklar ve efsanevi hazinelerle karşılaştı.", image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800", transport: "ship" },
-                    { step: 11, title: "Vâkvâk Adası", lat: 0.0000, lng: 105.0000, quote: "Vâkvâk adasında insan meyvesi veren o meşhur acayip ağaçları gördü.", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800", transport: "ship" },
-                    { step: 12, title: "Betân / Benan Adası", lat: 5.0000, lng: 95.0000, quote: "Betân adasının sarp kayalıkları arasında zorlu bir deniz seferi yaptı.", image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800", transport: "ship" },
-                    { step: 13, title: "Etvârib / Etvâriyye Adası", lat: 8.0000, lng: 73.0000, quote: "Etvârib adasında deryanın dalgalarıyla boğuşup yönünü tayin eyledi.", image: "https://images.unsplash.com/photo-1568322445389-f64ac25256e6?w=800", transport: "ship" },
-                    { step: 14, title: "Câbe / Cava Adası", lat: -7.5361, lng: 112.2384, quote: "Câbe adasının baharat kokulu ormanlarında çadır kurdu.", image: "https://images.unsplash.com/photo-1599839575945-a9e330adc30d?w=800", transport: "ship" },
-                    { step: 15, title: "Lengâvûs / Lenkâvûs Adası", lat: 3.1390, lng: 101.6869, quote: "Lengâvûs adasında denizin derinliklerinden gelen gizli sesleri dinledi.", image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800", transport: "ship" },
-                    { step: 16, title: "Tinnîn Adası", lat: 10.0000, lng: 85.0000, quote: "Tinnîn adasında ejderha misali büyük yaratıkların menziline uğradı.", image: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=800", transport: "ship" },
-                    { step: 17, title: "Selâmıt / Selamit Adası", lat: 18.0000, lng: 57.0000, quote: "Selâmıt adasında selametle karaya ayak basıp şükür namazı kıldı.", image: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800", transport: "ship" },
-                    { step: 18, title: "Elmas Vadisi", lat: 35.0000, lng: 70.0000, quote: "Elmas vadisinde kartalların yardımıyla devasa elmasları toplattı.", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800", transport: "car" },
-                    { step: 19, title: "Billur Köşk", lat: 38.0000, lng: 65.0000, quote: "Billur köşkün gümüş ve camdan yapılmış ihtişamına hayran kaldı.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800", transport: "car" },
-                    { step: 20, title: "Çin", lat: 39.9042, lng: 116.4074, quote: "Çin ülkesine varıp seddi aştı ve Doğu'nun kağanından haraç aldı.", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800", transport: "car" },
-                    { step: 21, title: "Kişmîr / Keşmir", lat: 33.7782, lng: 76.5762, quote: "Keşmir vadisinin yeşillikleri arasında dervişlerle sohbet eyledi.", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", transport: "car" },
-                    { step: 22, title: "Türk Ülkesi", lat: 45.0000, lng: 70.0000, quote: "Türk ellerine varıp Alp erlerin mertliğini ve yaylaklarını müşahede kıldı.", image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800", transport: "car" },
-                    { step: 23, title: "Tatargar", lat: 48.0000, lng: 80.0000, quote: "Tatargar vilayetinin hudut boylarında karargah kurdu.", image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800", transport: "car" },
-                    { step: 24, title: "Rus Ülkesi", lat: 55.7558, lng: 37.6173, quote: "Rus diyarının soğuk ve karlı ormanlarında kuzey seferini tamamladı.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", transport: "car" },
-                    { step: 25, title: "Mâzenderân", lat: 36.5656, lng: 53.0586, quote: "Mâzenderân diyarında periler ve devler efsanesine konu olan dağları gezdi.", image: "https://images.unsplash.com/photo-1599839575945-a9e330adc30d?w=800", transport: "car" },
-                    { step: 26, title: "Horasan", lat: 36.2970, lng: 59.6062, quote: "Horasan ilinin irfan meclislerinde alimlerle ilmi münazara kıldı.", image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800", transport: "car" },
-                    { step: 27, title: "Mısır", lat: 30.0444, lng: 31.2357, quote: "Mısır'a varıp Nil nehrinin bereketli topraklarında adaletle hükmetti.", image: "https://images.unsplash.com/photo-1568322445389-f64ac25256e6?w=800", transport: "car" },
-                    { step: 28, title: "Nil Nehri", lat: 30.1000, lng: 31.3000, quote: "Nil nehrinin taşkın sularını ve suyunun gizemini ulemaya sordu.", image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800", transport: "ship" },
-                    { step: 29, title: "İskenderiyye", lat: 31.2001, lng: 29.9187, quote: "Kendi adıyla anılan İskenderiye şehrini kurup fener inşa ettirdi.", image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800", transport: "ship" },
-                    { step: 30, title: "Mağrib", lat: 31.7917, lng: -7.0926, quote: "Mağrib diyarına, güneşin battığı en uzak batı sınırlarına kadar ulaştı.", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800", transport: "car" },
-                    { step: 31, title: "Bağdat", lat: 33.3152, lng: 44.3661, quote: "Bağdat şehrinde Dicle kıyısında büyük bir medeniyet merkezi kurdu.", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=800", transport: "car" },
-                    { step: 32, title: "Hicaz & Kâbe", lat: 21.3891, lng: 39.8579, quote: "Hicaz topraklarına varıp Kâbe-i Muazzama'yı büyük bir tevazu ile ziyaret etti.", image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800", transport: "car" },
-                    { step: 33, title: "Mescid-i Aksa / Kudüs", lat: 31.7767, lng: 35.2345, quote: "Kudüs'e varıp Mescid-i Aksa'da ibadet edip hutbe okuttu.", image: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800", transport: "car" },
-                    { step: 34, title: "Karanlıklar Diyarı (Zulmet)", lat: 65.0000, lng: 40.0000, quote: "Zulümat diyarına (Karanlıklar ülkesi) girip Âb-ı Hayat (ebedilik suyu) aradı.", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800", transport: "car" },
-                    { step: 35, title: "Cadılar Diyarı", lat: 60.0000, lng: 50.0000, quote: "Cadılar ve sihirbazlar diyarından hikmetle ve selametle geçti.", image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800", transport: "car" }
-                ]
-            }
-        ];
+/* ================= HARİTA ETİKETLERİ (ad, enlem, boylam) ================= */
+const CONT=[["ASIA",45,90],["EUROPE",50,15],["AFRICA",5,20],["NORTH AMERICA",45,-100],["SOUTH AMERICA",-15,-60],["OCEANIA",-25,135],["ANTARCTICA",-80,0]];
+const OCEAN=[["Atlantic Ocean",0,-30],["Pacific Ocean",0,-145],["Indian Ocean",-15,80],["Arctic Ocean",82,0],["Southern Ocean",-62,60]];
+const SEAS=[["Mediterranean Sea",35,18],["Black Sea",43.5,34],["Caspian Sea",41.5,50.5],["Red Sea",20,38.5],["Arabian Sea",15,65],["Persian Gulf",27,51.5],["Bay of Bengal",14,88],["South China Sea",12,114],["North Sea",56,3],["Baltic Sea",58,20],["Sea of Japan",40,134],["Gulf of Aden",12,48],["Caribbean Sea",15,-75],["Gulf of Mexico",25,-90],["Java Sea",-5,110],["Barents Sea",74,38],["Aegean Sea",38.5,25]];
+const CITIES=[["Istanbul",41.01,28.98],["Ankara",39.93,32.86],["Amasya",40.65,35.84],["Izmir",38.42,27.14],["Baghdad",33.32,44.37],["Tehran",35.69,51.39],["Cairo",30.04,31.24],["Alexandria",31.2,29.92],["Jerusalem",31.78,35.23],["Mecca",21.39,39.86],["Damascus",33.51,36.29],["Riyadh",24.71,46.68],["Dubai",25.2,55.27],["Delhi",28.61,77.21],["Mumbai",19.08,72.88],["Karachi",24.86,67.01],["Kolkata",22.57,88.36],["Kabul",34.53,69.17],["Samarkand",39.65,66.96],["Tashkent",41.3,69.24],["Baku",40.41,49.87],["Tbilisi",41.72,44.79],["Beijing",39.9,116.41],["Shanghai",31.23,121.47],["Tokyo",35.68,139.69],["Seoul",37.57,126.98],["Bangkok",13.76,100.5],["Singapore",1.35,103.82],["Jakarta",-6.2,106.85],["Moscow",55.76,37.62],["Athens",37.98,23.73],["Rome",41.9,12.5],["Paris",48.86,2.35],["London",51.51,-0.13],["Berlin",52.52,13.4],["Madrid",40.42,-3.7],["Tunis",36.81,10.18],["Casablanca",33.57,-7.59],["Nairobi",-1.29,36.82],["Lagos",6.52,3.38],["Cape Town",-33.92,18.42],["New York",40.71,-74.0],["Mexico City",19.43,-99.13],["Sao Paulo",-23.55,-46.63],["Sydney",-33.87,151.21]];
 
-        // Google Maps haritası (anahtar istemeyen karo katmanı)
-        const map = L.map('map', { 
-            zoomControl: false,
-            minZoom: 3,
-            maxZoom: 16
-        }).setView([38.9637, 35.2433], 4);
+/* ================= KÜRE ================= */
+const gEl=document.getElementById('globe');
+const globe=Globe()(gEl)
+  .globeImageUrl('https://unpkg.com/three-globe@2.31.0/example/img/earth-night.jpg')
+  .bumpImageUrl('https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png')
+  .backgroundColor('rgba(0,0,0,0)')
+  .showAtmosphere(true).atmosphereColor('#3b82f6').atmosphereAltitude(0.22)
+  // ülke sınırları
+  .polygonCapColor(()=>'rgba(40,90,200,0.05)').polygonSideColor(()=>'rgba(0,0,0,0)')
+  .polygonStrokeColor(()=>'rgba(147,197,253,0.5)').polygonAltitude(0.003).polygonLabel(()=>'')
+  // etiketler
+  .labelLat(d=>d.lat).labelLng(d=>d.lng).labelText(d=>d.name).labelSize(d=>d.size).labelColor(d=>d.col)
+  .labelDotRadius(0).labelAltitude(0.006).labelResolution(2).labelsTransitionDuration(0).labelLabel(()=>'')
+  // pimler
+  .htmlLat(d=>d.lat).htmlLng(d=>d.lng).htmlAltitude(0.01).htmlElement(d=>d.el||(d.el=mkPin(d)))
+  // rota çizgisi (parıltı + çekirdek)
+  .pathPoints(d=>d.pts).pathPointLat(p=>p[0]).pathPointLng(p=>p[1]).pathPointAlt(p=>p[2])
+  .pathColor(d=>d.g?'rgba(56,225,255,0.22)':'#8aeaff').pathStroke(d=>d.g?1.4:0.38)
+  .pathResolution(2).pathTransitionDuration(0)
+  // ilerleyen uç nokta ve varış halkası
+  .pointLat(d=>d.lat).pointLng(d=>d.lng).pointAltitude(d=>d.alt).pointRadius(0.42).pointColor(()=>'#ffffff').pointResolution(12).pointLabel(()=>'')
+  .ringLat(d=>d.lat).ringLng(d=>d.lng).ringColor(()=>t=>`rgba(245,158,11,${1-t})`).ringMaxRadius(3.5).ringPropagationSpeed(2.5).ringRepeatPeriod(900);
 
-        L.control.zoom({ position: 'bottomright' }).addTo(map);
+const ctl=globe.controls();
+ctl.minDistance=115;ctl.maxDistance=450;ctl.zoomSpeed=0.7;ctl.enablePan=false;ctl.enableDamping=true;
+globe.pointOfView({lat:39,lng:35,altitude:2.3},0);
 
-        // lyrs=m → harita | s → uydu | y → uydu + yol/yer adları | p → arazi
-        let currentLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=m&hl=tr&x={x}&y={y}&z={z}', { 
-            maxZoom: 20,
-            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-            attribution: '&copy; Google Maps' 
-        }).addTo(map);
+function fit(){globe.width(gEl.clientWidth).height(gEl.clientHeight);drawStars()}
+new ResizeObserver(fit).observe(gEl);
 
-        let activeMarkers = [];
-        let activePolyline = null;
-        let activeWorkId = null;
-        let movingMarker = null;
-        let animationInterval = null;
+// Yıldızlı arka plan
+function drawStars(){
+  const c=document.getElementById('stars'),r=devicePixelRatio||1;
+  c.width=c.clientWidth*r;c.height=c.clientHeight*r;
+  const x=c.getContext('2d');x.scale(r,r);
+  let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
+  for(let i=0;i<420;i++){
+    const rad=rnd()*1.3+.2,a=rnd()*.7+.25;
+    x.fillStyle=rnd()>.8?`rgba(160,200,255,${a})`:`rgba(255,255,255,${a})`;
+    x.beginPath();x.arc(rnd()*c.clientWidth,rnd()*c.clientHeight,rad,0,7);x.fill();
+  }
+}
 
-        function toggleSpeedMenu() {
-            document.getElementById('speed-menu').classList.toggle('show');
-            document.getElementById('font-style-menu').classList.remove('show');
-            document.getElementById('lang-menu').classList.remove('show');
-        }
+// Ülke sınırları + ülke adları
+let countryLabels=[];
+function bboxCenter(f){
+  const g=f.geometry,polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;let best=null,ba=-1;
+  polys.forEach(p=>{let a=1e9,b=-1e9,c=1e9,d=-1e9;p[0].forEach(([x,y])=>{a=Math.min(a,x);b=Math.max(b,x);c=Math.min(c,y);d=Math.max(d,y)});
+    const ar=(b-a)*(d-c);if(ar>ba){ba=ar;best=[(c+d)/2,(a+b)/2,ar]}});
+  return best;
+}
+(async function loadBorders(){
+  const urls=['https://cdn.jsdelivr.net/gh/vasturiano/globe.gl@master/example/datasets/ne_110m_admin_0_countries.geojson','https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson'];
+  for(const u of urls){
+    try{
+      const j=await (await fetch(u)).json();
+      globe.polygonsData(j.features);
+      countryLabels=j.features.map(f=>{const c=bboxCenter(f);const p=f.properties;return c&&{name:p.NAME||p.ADMIN||p.name,lat:c[0],lng:c[1],area:c[2]}}).filter(Boolean);
+      applyLabels(true);return;
+    }catch(e){}
+  }
+})();
 
-        function toggleFontMenu() {
-            document.getElementById('font-style-menu').classList.toggle('show');
-            document.getElementById('speed-menu').classList.remove('show');
-            document.getElementById('lang-menu').classList.remove('show');
-        }
+// Yakınlığa göre ayrıntı düzeyi
+let lastLevel=-1;
+const level=a=>a>1.7?0:a>0.8?1:2;
+function applyLabels(force){
+  const l=level(globe.pointOfView().altitude);
+  if(l===lastLevel&&!force)return;lastLevel=l;
+  const o=[];
+  const add=(arr,size,col)=>arr.forEach(a=>o.push({name:a[0],lat:a[1],lng:a[2],size,col}));
+  if(l===0){add(CONT,2.3,'#e2e8f0');add(OCEAN,1.8,'#7dd3fc')}
+  if(l===1){add(OCEAN,1.1,'#7dd3fc');add(SEAS,0.6,'#7dd3fc');
+    countryLabels.filter(c=>c.area>60).forEach(c=>o.push({name:c.name,lat:c.lat,lng:c.lng,size:0.6,col:'rgba(226,232,240,.88)'}))}
+  if(l===2){add(OCEAN,0.8,'#7dd3fc');add(SEAS,0.4,'#7dd3fc');
+    countryLabels.forEach(c=>o.push({name:c.name,lat:c.lat,lng:c.lng,size:0.32,col:'rgba(226,232,240,.88)'}));
+    add(CITIES,0.2,'#fde68a')}
+  globe.labelsData(o);
+}
+globe.onZoom(p=>{gEl.classList.toggle('zoomed',p.altitude<1.1);applyLabels()});
 
-        function toggleLangMenu() {
-            document.getElementById('lang-menu').classList.toggle('show');
-            document.getElementById('speed-menu').classList.remove('show');
-            document.getElementById('font-style-menu').classList.remove('show');
-        }
+/* ================= PİMLER ================= */
+let pins=[];
+function mkPin(d){
+  const w=document.createElement('div');w.className='pinw';
+  const p=document.createElement('div');p.className='pin'+(d.start?' start':'');
+  p.innerHTML=d.start?'<b>📖</b>':`<b>${d.step}</b><i>${d.title}</i>`;
+  if(!d.start)p.style.animationDelay=(d.step*40)+'ms';
+  p.onclick=e=>{e.stopPropagation();d.start?startTour():openStop(d)};
+  w.appendChild(p);d.pin=p;return w;
+}
+function setPins(arr){
+  pins=arr;globe.htmlElementsData(arr);
+  arr.forEach(d=>d.xyz=globe.getCoords(d.lat,d.lng,0));
+}
+// Küre arkasında kalan pimleri gizle
+(function loop(){
+  const c=globe.camera().position;
+  pins.forEach(d=>{if(d.pin&&d.xyz)d.pin.classList.toggle('hid',d.xyz.x*c.x+d.xyz.y*c.y+d.xyz.z*c.z<10000)});
+  requestAnimationFrame(loop);
+})();
+function markCurrent(d){pins.forEach(p=>p.pin&&p.pin.classList.toggle('cur',p===d))}
 
-        window.addEventListener('click', function(e) {
-            if (!document.getElementById('speed-container').contains(e.target)) {
-                document.getElementById('speed-menu').classList.remove('show');
-            }
-            if (!document.getElementById('font-container').contains(e.target)) {
-                document.getElementById('font-style-menu').classList.remove('show');
-            }
-            if (!document.getElementById('lang-container').contains(e.target)) {
-                document.getElementById('lang-menu').classList.remove('show');
-            }
-        });
+function openStop(d){
+  popupOpen=true;
+  document.getElementById('popup-body').innerHTML=`<h4>Pim ${d.step}: ${d.title}</h4><img src="${d.image}" alt="${d.title}" onerror="this.style.display='none'"><p>"${d.quote}"</p>`;
+  document.getElementById('popup').classList.add('show');
+  globe.pointOfView({lat:d.lat,lng:d.lng,altitude:1.1},1000);
+}
+function closePopup(){popupOpen=false;document.getElementById('popup').classList.remove('show')}
 
-        function setSpeed(multiplier, labelText, btnElement) {
-            animationSpeedMultiplier = multiplier;
-            document.getElementById('speed-btn').innerText = `⚡ Hız: ${labelText}`;
-            document.querySelectorAll('.speed-opt').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-            document.getElementById('speed-menu').classList.remove('show');
-        }
+/* ================= ROTA ANİMASYONU ================= */
+const R=Math.PI/180;
+const toV=(la,lo)=>[Math.cos(la*R)*Math.cos(lo*R),Math.cos(la*R)*Math.sin(lo*R),Math.sin(la*R)];
+function greatCircle(a,b,n){
+  const A=toV(a.lat,a.lng),B=toV(b.lat,b.lng);
+  const d=Math.acos(Math.max(-1,Math.min(1,A[0]*B[0]+A[1]*B[1]+A[2]*B[2])));
+  const pts=[];
+  for(let i=0;i<=n;i++){
+    const t=i/n;let v=A;
+    if(d>1e-6){const s=Math.sin(d),w1=Math.sin((1-t)*d)/s,w2=Math.sin(t*d)/s;v=[0,1,2].map(k=>w1*A[k]+w2*B[k])}
+    pts.push([Math.asin(Math.max(-1,Math.min(1,v[2])))/R,Math.atan2(v[1],v[0])/R,0.012+0.07*Math.sin(Math.PI*t)*d/Math.PI]);
+  }
+  return{pts,deg:d/R};
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function anim(ms,fn,id){
+  return new Promise(res=>{
+    const t0=performance.now();
+    (function f(n){
+      if(id!==runId)return res();
+      const t=Math.min(1,(n-t0)/ms);fn(t);
+      t<1?requestAnimationFrame(f):res();
+    })(t0);
+  });
+}
+function clearRoute(){globe.pathsData([]).pointsData([]).ringsData([]);markCurrent(null)}
+const pair=(pts)=>[{pts,g:1},{pts,g:0}];
 
-        function setLanguage(lang) {
-            currentLang = lang;
-            document.getElementById('lang-menu').classList.remove('show');
-            renderApp();
-        }
+async function runTour(id){
+  while(id===runId){
+    const done=[];clearRoute();
+    for(let i=0;i<STOPS.length-1&&id===runId;i++){
+      const a=STOPS[i],b=STOPS[i+1],gc=greatCircle(a,b,48);
+      const ms=Math.max(1100,Math.min(3600,900+gc.deg*28))/speed;
+      markCurrent(a);
+      if(!popupOpen){
+        const m=gc.pts[24];
+        globe.pointOfView({lat:m[0],lng:m[1],altitude:Math.max(1.3,Math.min(2.6,1.2+gc.deg/45))},900/speed);
+      }
+      await anim(ms,t=>{
+        const k=Math.max(1,Math.round(ease(t)*48)),part=gc.pts.slice(0,k+1),h=part[part.length-1];
+        globe.pathsData([...done.flatMap(pair),...pair(part)]);
+        globe.pointsData([{lat:h[0],lng:h[1],alt:h[2]}]);
+      },id);
+      if(id!==runId)return;
+      done.push(gc.pts);
+      globe.pathsData(done.flatMap(pair));
+      globe.ringsData([b]);markCurrent(b);
+      await sleep(350/speed);
+    }
+    if(id!==runId)return;
+    globe.pointsData([]);
+    await sleep(3000/speed);
+  }
+}
+function startTour(){
+  runId++;const id=runId;
+  activeWorkId=WORK.id;closePopup();
+  setPins(STOPS);
+  gEl.classList.remove('zoomed');
+  globe.pointOfView({lat:STOPS[0].lat,lng:STOPS[0].lng,altitude:2.2},1000);
+  renderCard();
+  setTimeout(()=>{if(id===runId)runTour(id)},900);
+}
+function resetMapToInitial(){
+  runId++;activeWorkId=null;closePopup();clearRoute();
+  setPins([{start:true,lat:WORK.lat,lng:WORK.lng}]);
+  globe.pointOfView({lat:39,lng:35,altitude:2.3},1200);
+  renderCard();
+}
 
-        function setFontFamily(fontKey, btnElement) {
-            let fontValue = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-            if (fontKey === 'roboto') fontValue = '"Roboto", sans-serif';
-            if (fontKey === 'playfair') fontValue = '"Playfair Display", serif';
+/* ================= ARAYÜZ ================= */
+function toggleMenu(id){
+  ['speed-menu','font-style-menu','lang-menu'].forEach(m=>{const e=document.getElementById(m);m===id?e.classList.toggle('show'):e.classList.remove('show')});
+}
+window.addEventListener('click',e=>{
+  [['speed-container','speed-menu'],['font-container','font-style-menu'],['lang-container','lang-menu']].forEach(([c,m])=>{
+    if(!document.getElementById(c).contains(e.target))document.getElementById(m).classList.remove('show');
+  });
+});
+function setSpeed(m,label,btn){
+  speed=m;document.getElementById('speed-btn').innerText=`⚡ Hız: ${label}`;
+  document.querySelectorAll('.speed-opt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  document.getElementById('speed-menu').classList.remove('show');
+}
+function setLanguage(l){currentLang=l;document.getElementById('lang-menu').classList.remove('show');renderCard()}
+function setFontFamily(k,btn){
+  let f='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+  if(k==='roboto')f='"Roboto",sans-serif';if(k==='playfair')f='"Playfair Display",serif';
+  document.documentElement.style.setProperty('--app-font',f);
+  document.querySelectorAll('.font-opt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+}
+function setFontWeight(w,btn){
+  document.documentElement.style.setProperty('--app-weight',w);
+  document.querySelectorAll('.weight-opt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+}
+function renderCard(){
+  const t=translations[currentLang];
+  document.getElementById('ui-title').innerText=t.title;
+  document.getElementById('font-style-btn').innerText=t.fontStyle;
+  document.getElementById('lbl-font').innerText=t.fontTitle;
+  document.getElementById('lbl-weight').innerText=t.weightTitle;
+  const list=document.getElementById('workList');list.innerHTML='';
+  const card=document.createElement('div');
+  card.className='work-card'+(activeWorkId===WORK.id?' highlight':'');
+  card.innerHTML=`${activeWorkId===WORK.id?`<span class="active-badge">${t.activeRoute}</span>`:''}
+    <h3>${t.workTitle}</h3><div class="author">${t.author}</div>
+    <img src="${WORK.image}" alt="${t.workTitle}">
+    <div class="kunye-section">
+      <div class="kunye-row"><span class="kunye-label">${t.period}:</span> ${t.workPeriod}</div>
+      <div class="kunye-row"><span class="kunye-label">${t.center}:</span> ${t.workCenter}</div>
+      <div class="kunye-row"><span class="kunye-label">${t.form}:</span> ${t.workForm}</div>
+      <div class="kunye-row"><span class="kunye-label">${t.lang}:</span> ${t.workLang}</div>
+      <div class="kunye-row"><span class="kunye-label">${t.purpose}:</span> ${t.workPurpose}</div>
+      <div class="kunye-row"><span class="kunye-label">${t.subject}:</span> ${t.workSubject}</div>
+    </div>`;
+  card.addEventListener('click',()=>{startTour();card.scrollIntoView({behavior:'smooth',block:'center'})});
+  list.appendChild(card);
+}
 
-            document.documentElement.style.setProperty('--app-font', fontValue);
-            document.querySelectorAll('.font-opt').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-        }
-
-        function setFontWeight(weightValue, btnElement) {
-            document.documentElement.style.setProperty('--app-weight', weightValue);
-            document.querySelectorAll('.weight-opt').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-        }
-
-        function resetMapToInitial() {
-            clearMapElements();
-            activeWorkId = null;
-            map.setView([38.9637, 35.2433], 4);
-            renderApp();
-        }
-
-        function clearMapElements() {
-            if (animationInterval) {
-                clearInterval(animationInterval);
-                animationInterval = null;
-            }
-            activeMarkers.forEach(m => map.removeLayer(m));
-            activeMarkers = [];
-            if (activePolyline) {
-                map.removeLayer(activePolyline);
-                activePolyline = null;
-            }
-            if (movingMarker) {
-                map.removeLayer(movingMarker);
-                movingMarker = null;
-            }
-        }
-
-        function selectWorkJourney(workId) {
-            clearMapElements();
-            activeWorkId = workId;
-            renderApp();
-
-            const work = classicalWorks.find(w => w.id === workId);
-            if (!work) return;
-
-            let latLngs = [];
-            let boundsPoints = [];
-
-            work.journey.forEach((stop, index) => {
-                const point = [stop.lat, stop.lng];
-                latLngs.push(point);
-                boundsPoints.push(point);
-
-                const numberedIcon = L.divIcon({
-                    className: 'custom-numbered-pin',
-                    html: `<div style="background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px); border: 2px solid #f59e0b; color: #f59e0b; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.6);">${stop.step}</div><div style="background: rgba(0,0,0,0.75); color: #f59e0b; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; margin-top: 2px; text-align: center; border: 1px solid rgba(245,158,11,0.3);">${stop.step}. ${stop.title}</div>`,
-                    iconSize: [34, 60],
-                    iconAnchor: [17, 17],
-                    popupAnchor: [0, -18]
-                });
-
-                const marker = L.marker(point, { icon: numberedIcon }).addTo(map);
-                marker.bindPopup(`
-                    <h4>Pim ${stop.step}: ${stop.title}</h4>
-                    <img src="${stop.image}" alt="${stop.title}">
-                    <p>"${stop.quote}"</p>
-                `);
-
-                activeMarkers.push(marker);
-            });
-
-            activePolyline = L.polyline(latLngs, {
-                color: '#f59e0b',
-                weight: 3,
-                opacity: 0.85,
-                dashArray: '5, 7',
-                lineCap: 'round'
-            }).addTo(map);
-
-            if (boundsPoints.length > 0) {
-                map.fitBounds(L.latLngBounds(boundsPoints), { padding: [50, 50], maxZoom: 6, animate: true });
-            }
-
-            startJourneyAnimation(work.journey);
-        }
-
-        function startJourneyAnimation(journey) {
-            let currentSegment = 0;
-            let stepProgress = 0;
-            const stepsCount = 40;
-
-            function getVehicleIcon(type) {
-                const bg = type === 'ship' ? '#0284c7' : '#2563eb';
-                const emoji = type === 'ship' ? '🚢' : '🚗';
-                return L.divIcon({
-                    className: 'moving-vehicle-icon',
-                    html: `<div style="background: ${bg}; border: 2px solid #fff; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.7);">${emoji}</div>`,
-                    iconSize: [34, 34],
-                    iconAnchor: [17, 17]
-                });
-            }
-
-            if (journey.length < 2) return;
-
-            let startPoint = [journey[0].lat, journey[0].lng];
-            let currentType = journey[0].transport || 'car';
-
-            movingMarker = L.marker(startPoint, { icon: getVehicleIcon(currentType) }).addTo(map);
-
-            animationInterval = setInterval(() => {
-                if (currentSegment >= journey.length - 1) {
-                    currentSegment = 0;
-                }
-
-                let p1 = journey[currentSegment];
-                let p2 = journey[currentSegment + 1];
-
-                let lat1 = p1.lat, lng1 = p1.lng;
-                let lat2 = p2.lat, lng2 = p2.lng;
-
-                let t = stepProgress / stepsCount;
-                let currentLat = lat1 + (lat2 - lat1) * t;
-                let currentLng = lng1 + (lng2 - lng1) * t;
-
-                let activeTransport = p2.transport || 'car';
-                movingMarker.setIcon(getVehicleIcon(activeTransport));
-                movingMarker.setLatLng([currentLat, currentLng]);
-
-                stepProgress++;
-                if (stepProgress > stepsCount) {
-                    stepProgress = 0;
-                    currentSegment++;
-                }
-            }, 80 / animationSpeedMultiplier);
-        }
-
-        function renderApp() {
-            const t = translations[currentLang];
-
-            document.getElementById('ui-title').innerText = t.title;
-            document.getElementById('font-style-btn').innerText = t.fontStyle;
-            document.getElementById('lbl-font').innerText = t.fontTitle;
-            document.getElementById('lbl-weight').innerText = t.weightTitle;
-
-            const workListContainer = document.getElementById('workList');
-            workListContainer.innerHTML = '';
-
-            classicalWorks.forEach(function(item) {
-                const card = document.createElement('div');
-                card.className = `work-card ${activeWorkId === item.id ? 'highlight' : ''}`;
-                
-                let activeBadgeHtml = activeWorkId === item.id ? `<span class="active-badge">${t.activeRoute}</span>` : '';
-
-                card.innerHTML = `
-                    ${activeBadgeHtml}
-                    <h3>${t.workTitle}</h3>
-                    <div class="author">${t.author}</div>
-                    <img src="${item.image}" alt="${t.workTitle}">
-                    <div class="kunye-section">
-                        <div class="kunye-row"><span class="kunye-label">${t.period}:</span> ${t.workPeriod}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.center}:</span> ${t.workCenter}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.form}:</span> ${t.workForm}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.lang}:</span> ${t.workLang}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.purpose}:</span> ${t.workPurpose}</div>
-                        <div class="kunye-row"><span class="kunye-label">${t.subject}:</span> ${t.workSubject}</div>
-                    </div>
-                `;
-
-                card.addEventListener('click', function() {
-                    selectWorkJourney(item.id);
-                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                });
-
-                workListContainer.appendChild(card);
-            });
-
-            if (!activeWorkId && activeMarkers.length === 0) {
-                classicalWorks.forEach(function(item) {
-                    const initialIcon = L.divIcon({
-                        className: 'custom-initial-pin',
-                        html: `<div style="background: rgba(28, 28, 30, 0.9); backdrop-filter: blur(10px); border: 2px solid #f59e0b; color: #f59e0b; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">📖</div>`,
-                        iconSize: [42, 42],
-                        iconAnchor: [21, 21],
-                        popupAnchor: [0, -22]
-                    });
-
-                    const marker = L.marker([item.lat, item.lng], { icon: initialIcon }).addTo(map);
-                    marker.bindPopup(`
-                        <h4>${t.workTitle}</h4>
-                        <em>${t.author}</em>
-                        <img src="${item.image}" alt="${t.workTitle}">
-                        <p>${t.initialPopup}</p>
-                    `);
-
-                    marker.on('click', function() {
-                        selectWorkJourney(item.id);
-                    });
-
-                    activeMarkers.push(marker);
-                });
-            }
-        }
-
-        renderApp();
-    </script>
+fit();
+renderCard();
+setPins([{start:true,lat:WORK.lat,lng:WORK.lng}]);
+</script>
 </body>
 </html>
