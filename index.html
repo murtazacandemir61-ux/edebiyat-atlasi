@@ -89,6 +89,7 @@ iframe[src*="netlify"],#netlify-badge,.netlify-badge,a[href*="netlify.com"]{disp
     <div style="position:relative" id="speed-container">
       <button class="pill-btn" onclick="toggleMenu('speed-menu')" id="speed-btn">⚡ Hız: 1x</button>
       <div id="speed-menu" class="dropdown-menu">
+        <button class="dropdown-option" id="pause-opt" onclick="togglePause()">⏸ Dur</button>
         <button class="dropdown-option speed-opt" onclick="setSpeed(0.25,'0.25x',this)">0.25x (Yavaş)</button>
         <button class="dropdown-option speed-opt" onclick="setSpeed(0.5,'0.50x',this)">0.50x</button>
         <button class="dropdown-option speed-opt" onclick="setSpeed(0.75,'0.75x',this)">0.75x</button>
@@ -149,7 +150,7 @@ el:{title:"Άτλας Ισκεντερνάμε",fontStyle:"🔤 Στυλ Γρα�
 ja:{title:"イスカンダルナメ アトラス",fontStyle:"🔤 フォントスタイル",fontTitle:"フォント",weightTitle:"太さ",activeRoute:"アクティブルート (35駅 & アニメ)",center:"中心地",period:"時代",form:"文学形式",lang:"言語",purpose:"執筆目的",subject:"主題",workTitle:"イスカンダルナメ",author:"アフメディー",workPeriod:"14世紀末〜15世紀初頭",workCenter:"アマシア",workForm:"マスナヴィー（歴史・哲学叙事詩）",workLang:"古アナトリア・トルコ語",workPurpose:"統治者に正義と道徳を教えるため。",workSubject:"アレクサンドロス大王の伝説的生涯。"},
 hi:{title:"इस्केंदरनामे एटलस",fontStyle:"🔤 फ़ॉन्ट शैली",fontTitle:"फ़ॉन्ट",weightTitle:"मोटाई",activeRoute:"सक्रिय मार्ग (35 पड़ाव)",center:"केंद्र",period:"काल",form:"साहित्यिक रूप",lang:"भाषा",purpose:"उद्देश्य",subject:"विषय",workTitle:"इस्केंदरनामे",author:"अहमदी",workPeriod:"14वीं - 15वीं शताब्दी",workCenter:"अमास्या",workForm:"मसनवी (ऐतिहासिक और दार्शनिक)",workLang:"पुरानी अनाटोलियन तुर्की",workPurpose:"शासकों को शासन और न्याय की शिक्षा देना।",workSubject:"सिकंदर महान का जीवन और अभियान।"}
 };
-let currentLang='tr',speed=1,activeWorkId=null,runId=0,popupOpen=false;
+let currentLang='tr',speed=1,speedLabel='1x',paused=false,activeWorkId=null,runId=0,popupOpen=false;
 
 /* ================= VERİ (koordinatlar değişmedi) ================= */
 const IMG=['1524231757912-21f4fe3a7200','1518684079-3c830dcef090','1541432901042-2d8bd64b4a9b','1584646098378-0874589d76b1','1509316975850-ff9c5deb0cd9','1500382017468-9049fed747ef','1524492412937-b28074a5d7da','1507525428034-b723cf961d3e','1512343879784-a960bf40e7f2','1539650116574-8efeb43e2750','1508804185872-d7badad00f7d','1578632767115-351597cf2477','1568322445389-f64ac25256e6','1599839575945-a9e330adc30d','1591604129939-f1efa4d9f7fa','1577083552431-6e5fd01aa342','1464822759023-fed622ff2c3b'];
@@ -340,17 +341,30 @@ function greatCircle(a,b,n){
   }
   return{pts,deg:d/R};
 }
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+// Duraklatılabilir animasyon: "Dur" açıkken zaman ilerlemez
 function anim(ms,fn,id){
   return new Promise(res=>{
-    const t0=performance.now();
+    let el=0,last=performance.now();
     (function f(n){
       if(id!==runId)return res();
-      const t=Math.min(1,(n-t0)/ms);fn(t);
+      const dt=n-last;last=n;
+      if(!paused)el+=dt;
+      const t=Math.min(1,el/ms);
+      if(!paused)fn(t);
       t<1?requestAnimationFrame(f):res();
-    })(t0);
+    })(last);
   });
+}
+// Duraklatılabilir bekleme
+async function wait(ms,id){
+  let el=0,last=performance.now();
+  while(el<ms&&id===runId){
+    await new Promise(r=>requestAnimationFrame(r));
+    const n=performance.now();
+    if(!paused)el+=n-last;
+    last=n;
+  }
 }
 function clearRoute(){globe.pathsData([]).pointsData([]).ringsData([]);markCurrent(null)}
 const pair=(pts)=>[{pts,g:1},{pts,g:0}];
@@ -375,15 +389,15 @@ async function runTour(id){
       done.push(gc.pts);
       globe.pathsData(done.flatMap(pair));
       globe.ringsData([b]);markCurrent(b);
-      await sleep(350/speed);
+      await wait(350/speed,id);
     }
     if(id!==runId)return;
     globe.pointsData([]);
-    await sleep(3000/speed);
+    await wait(3000/speed,id);
   }
 }
 function startTour(){
-  runId++;const id=runId;
+  runId++;const id=runId;paused=false;updatePauseUI();
   activeWorkId=WORK.id;closePopup();
   setPins(STOPS);
   gEl.classList.remove('zoomed');
@@ -392,7 +406,7 @@ function startTour(){
   setTimeout(()=>{if(id===runId)runTour(id)},900);
 }
 function resetMapToInitial(){
-  runId++;activeWorkId=null;closePopup();clearRoute();
+  runId++;paused=false;updatePauseUI();activeWorkId=null;closePopup();clearRoute();
   setPins([{start:true,lat:WORK.lat,lng:WORK.lng}]);
   globe.pointOfView({lat:39,lng:35,altitude:2.3},1200);
   renderCard();
@@ -407,8 +421,15 @@ window.addEventListener('click',e=>{
     if(!document.getElementById(c).contains(e.target))document.getElementById(m).classList.remove('show');
   });
 });
+function updatePauseUI(){
+  document.getElementById('speed-btn').innerText=paused?'⏸ Durdu':`⚡ Hız: ${speedLabel}`;
+  const o=document.getElementById('pause-opt');
+  o.innerText=paused?'▶ Devam':'⏸ Dur';
+  o.classList.toggle('active',paused);
+}
+function togglePause(){paused=!paused;updatePauseUI();document.getElementById('speed-menu').classList.remove('show')}
 function setSpeed(m,label,btn){
-  speed=m;document.getElementById('speed-btn').innerText=`⚡ Hız: ${label}`;
+  speed=m;speedLabel=label;paused=false;updatePauseUI();
   document.querySelectorAll('.speed-opt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
   document.getElementById('speed-menu').classList.remove('show');
 }
