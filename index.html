@@ -33,7 +33,8 @@ iframe[src*="netlify"],#netlify-badge,.netlify-badge,a[href*="netlify.com"]{disp
 #globe canvas{outline:none}
 
 /* Pimler */
-.pinw{width:0;height:0}
+#pins{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.pinw{position:absolute;left:0;top:0;width:0;height:0;will-change:transform}
 .pin{position:absolute;left:-16px;top:-16px;width:32px;height:32px;pointer-events:auto;cursor:pointer;transition:opacity .25s;animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
 .pin.hid{opacity:0;pointer-events:none}
 .pin b{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(8,16,36,.9);border:2px solid var(--accent-color);color:var(--accent-color);font-size:12px;font-weight:700;box-shadow:0 0 14px rgba(245,158,11,.55),0 4px 14px rgba(0,0,0,.6);transition:transform .2s,background .2s}
@@ -82,6 +83,7 @@ iframe[src*="netlify"],#netlify-badge,.netlify-badge,a[href*="netlify.com"]{disp
 <div id="stage">
   <canvas id="stars"></canvas>
   <div id="globe"></div>
+  <div id="pins"></div>
 
   <div class="top-controls">
     <div style="position:relative" id="speed-container">
@@ -211,8 +213,6 @@ const globe=Globe()(gEl)
   // etiketler
   .labelLat(d=>d.lat).labelLng(d=>d.lng).labelText(d=>d.name).labelSize(d=>d.size).labelColor(d=>d.col)
   .labelDotRadius(0).labelAltitude(0.006).labelResolution(2).labelsTransitionDuration(0).labelLabel(()=>'')
-  // pimler
-  .htmlLat(d=>d.lat).htmlLng(d=>d.lng).htmlAltitude(0.01).htmlElement(d=>d.el||(d.el=mkPin(d)))
   // rota çizgisi (parıltı + çekirdek)
   .pathPoints(d=>d.pts).pathPointLat(p=>p[0]).pathPointLng(p=>p[1]).pathPointAlt(p=>p[2])
   .pathColor(d=>d.g?'rgba(56,225,255,0.22)':'#8aeaff').pathStroke(d=>d.g?1.4:0.38)
@@ -299,14 +299,21 @@ function mkPin(d){
   p.onclick=e=>{e.stopPropagation();d.start?startTour():openStop(d)};
   w.appendChild(p);d.pin=p;return w;
 }
+const pinLayer=document.getElementById('pins');
 function setPins(arr){
-  pins=arr;globe.htmlElementsData(arr);
-  arr.forEach(d=>d.xyz=globe.getCoords(d.lat,d.lng,0));
+  pinLayer.innerHTML='';          // önceki tüm pimleri kesin olarak sil
+  pins=arr;
+  arr.forEach(d=>{d.el=mkPin(d);pinLayer.appendChild(d.el);d.xyz=globe.getCoords(d.lat,d.lng,0)});
 }
-// Küre arkasında kalan pimleri gizle
+// Pimleri her karede küre üzerindeki konumuna taşı, küre arkasında kalanları gizle
 (function loop(){
   const c=globe.camera().position;
-  pins.forEach(d=>{if(d.pin&&d.xyz)d.pin.classList.toggle('hid',d.xyz.x*c.x+d.xyz.y*c.y+d.xyz.z*c.z<10000)});
+  pins.forEach(d=>{
+    if(!d.el)return;
+    const s=globe.getScreenCoords(d.lat,d.lng,0.01);
+    if(s)d.el.style.transform=`translate(${s.x}px,${s.y}px)`;
+    d.pin.classList.toggle('hid',!s||d.xyz.x*c.x+d.xyz.y*c.y+d.xyz.z*c.z<10000);
+  });
   requestAnimationFrame(loop);
 })();
 function markCurrent(d){pins.forEach(p=>p.pin&&p.pin.classList.toggle('cur',p===d))}
